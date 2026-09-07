@@ -303,20 +303,18 @@ export default function DigitalMenu({
     if (!category) {
       return { icon: '🍽️', glow: 'from-rose-500 to-red-700', ring: 'shadow-rose-500/30' };
     }
-    if (key.includes('steak')) return { icon: '🥩', glow: 'from-red-600 to-stone-950', ring: 'shadow-red-500/30' };
-    if (key.includes('kebab')) return { icon: '🍢', glow: 'from-orange-500 to-red-800', ring: 'shadow-orange-500/30' };
-    if (key.includes('meatball')) return { icon: '🧆', glow: 'from-amber-600 to-red-800', ring: 'shadow-amber-500/30' };
-    if (key.includes('meat port') || key.includes('menu')) return { icon: '👨‍🍳', glow: 'from-rose-600 to-slate-950', ring: 'shadow-rose-500/30' };
-    if (key.includes('meat') || key.includes('grill')) return { icon: '🔥', glow: 'from-red-500 to-orange-900', ring: 'shadow-red-500/30' };
-    if (key.includes('meze') || key.includes('mezze')) return { icon: '🥙', glow: 'from-emerald-500 to-teal-900', ring: 'shadow-emerald-500/30' };
-    if (key.includes('hot') || key.includes('appetizer')) return { icon: '🍟', glow: 'from-yellow-500 to-orange-800', ring: 'shadow-yellow-500/30' };
-    if (key.includes('salad')) return { icon: '🥗', glow: 'from-lime-500 to-emerald-800', ring: 'shadow-lime-500/30' };
-    if (key.includes('special')) return { icon: '⭐', glow: 'from-yellow-400 to-rose-700', ring: 'shadow-yellow-500/30' };
-    if (key.includes('shawarma')) return { icon: '🌯', glow: 'from-amber-500 to-orange-900', ring: 'shadow-amber-500/30' };
-    if (key.includes('burger')) return { icon: '🍔', glow: 'from-orange-500 to-stone-900', ring: 'shadow-orange-500/30' };
-    if (key.includes('sauce')) return { icon: '🥣', glow: 'from-red-500 to-purple-900', ring: 'shadow-red-500/30' };
-    if (key.includes('dessert') || key.includes('sweet')) return { icon: '🍰', glow: 'from-pink-400 to-fuchsia-800', ring: 'shadow-pink-500/30' };
-    if (key.includes('drink') || key.includes('juice') || key.includes('beverage')) return { icon: '🍹', glow: 'from-sky-400 to-blue-800', ring: 'shadow-sky-500/30' };
+    if (key.includes('salad') || key.includes('سلطات')) return { icon: '🥗', glow: 'from-lime-500 to-emerald-800', ring: 'shadow-lime-500/30' };
+    if (key.includes('meze') || key.includes('باردة')) return { icon: '🥙', glow: 'from-emerald-500 to-teal-900', ring: 'shadow-emerald-500/30' };
+    if (key.includes('hot') || key.includes('ساخنة')) return { icon: '🍟', glow: 'from-yellow-500 to-orange-800', ring: 'shadow-yellow-500/30' };
+    if (key.includes('kebab') || key.includes('كباب')) return { icon: '🍢', glow: 'from-orange-500 to-red-800', ring: 'shadow-orange-500/30' };
+    if (key.includes('meatball') || key.includes('كرات اللحم')) return { icon: '🧆', glow: 'from-amber-600 to-red-800', ring: 'shadow-amber-500/30' };
+    if (key.includes('meat port') || key.includes('ميت بورت') || key.includes('special') || key.includes('خاصة')) return { icon: '⭐', glow: 'from-yellow-400 to-rose-700', ring: 'shadow-yellow-500/30' };
+    if (key.includes('meat') || key.includes('لحوم') || key.includes('grill')) return { icon: '🔥', glow: 'from-red-500 to-orange-900', ring: 'shadow-red-500/30' };
+    if (key.includes('shawarma') || key.includes('شاورما') || key.includes('burger') || key.includes('برجر')) return { icon: '🌯', glow: 'from-amber-500 to-orange-900', ring: 'shadow-amber-500/30' };
+    if (key.includes('steak') || key.includes('ستيك')) return { icon: '🥩', glow: 'from-red-600 to-stone-950', ring: 'shadow-red-500/30' };
+    if (key.includes('sauce') || key.includes('صوصات') || key.includes('صلصات')) return { icon: '🥣', glow: 'from-red-500 to-purple-900', ring: 'shadow-red-500/30' };
+    if (key.includes('dessert') || key.includes('حلويات') || key.includes('sweet')) return { icon: '🍰', glow: 'from-pink-400 to-fuchsia-800', ring: 'shadow-pink-500/30' };
+    if (key.includes('drink') || key.includes('مشروبات') || key.includes('juice') || key.includes('عصائر')) return { icon: '🍹', glow: 'from-sky-400 to-blue-800', ring: 'shadow-sky-500/30' };
 
     return { icon: '🍽️', glow: 'from-rose-500 to-red-800', ring: 'shadow-rose-500/30' };
   };
@@ -542,15 +540,13 @@ export default function DigitalMenu({
           <div className="flex items-center gap-2">
             
             {/* Desktop Direct Call Support Link */}
-            {tenant.phone && (
-              <a 
-                href={`tel:${tenant.phone}`} 
-                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-[10px] font-black bg-emerald-500/5 hover:bg-emerald-500/10 transition leading-none"
-              >
-                <Phone className="w-3.5 h-3.5" />
-                <span>{tenant.phone}</span>
-              </a>
-            )}
+            <a 
+              href={`tel:${tenant.phone || '0555825356'}`} 
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-[10px] font-black bg-emerald-500/5 hover:bg-emerald-500/10 transition leading-none"
+            >
+              <Phone className="w-3.5 h-3.5" />
+              <span>{tenant.phone || '0555825356'}</span>
+            </a>
 
             {/* Language Switcher (Desktop Only) */}
             <button 
@@ -670,14 +666,16 @@ export default function DigitalMenu({
                   {lang === 'ar' ? 'اتصال مباشر وسريع' : 'Quick Actions'}
                 </h5>
                 <a 
-                  href={`tel:${tenant.phone}`}
+                  href={`tel:${tenant.phone || '0555825356'}`}
                   className="flex items-center justify-center gap-2.5 p-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-black transition border border-blue-500/15"
                 >
                   <Phone className="w-4 h-4" />
                   <span>{lang === 'ar' ? 'اتصال هاتفي بالفروع' : 'Call Phone'}</span>
                 </a>
                 <a 
-                  href="#"
+                  href={tenant.whatsappNumber && tenant.whatsappNumber !== '#' ? `https://wa.me/${tenant.whatsappNumber.replace(/[^0-9]/g, '')}` : 'https://wa.me/966555825356'}
+                  target="_blank"
+                  rel="noreferrer"
                   className="flex items-center justify-center gap-2.5 p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-black transition border border-emerald-500/15"
                 >
                   <MessageCircle className="w-4 h-4" />
@@ -709,7 +707,7 @@ export default function DigitalMenu({
               {/* Working hours display */}
               <div className="text-[9px] text-gray-400 flex items-center justify-center gap-1 font-bold">
                 <Clock className="w-3 h-3 text-[var(--tenant-primary)] animate-pulse" />
-                <span>{lang === 'ar' ? 'ساعات العمل: ١٢ ظهراً - ١٢ ليلاً' : 'Hours: 12 PM - 12 AM'}</span>
+                <span>{lang === 'ar' ? (tenant.hoursAr || 'ساعات العمل: ١٢ ظهراً - ٢ ليلاً') : (tenant.hoursEn || 'Opening Hours: 12 PM - 2 AM')}</span>
               </div>
             </div>
           </div>
@@ -755,9 +753,9 @@ export default function DigitalMenu({
                     : 'Indulge in our carefully crafted menu, prepared fresh daily by premium chefs using locally sourced fresh ingredients and traditional recipes.'))}
             </p>
             <div className="mt-2.5 flex items-center gap-2.5 text-[8px] text-gray-400 font-semibold">
-              <span>⏰ {lang === 'ar' ? '١٢ ظهراً - ١٢ ليلاً' : '12 PM - 12 AM'}</span>
+              <span>⏰ {lang === 'ar' ? '١٢ ظهراً - ٢ ليلاً' : '12 PM - 2 AM'}</span>
               <span>•</span>
-              <span>📍 {lang === 'ar' ? 'الفرع الرئيسي' : 'Main Hub Branch'}</span>
+              <span>📍 {lang === 'ar' ? 'الخبر - العليا - بشار بن برد' : 'Khobar - Olaya - Bashar Bin Burd'}</span>
             </div>
           </div>
         </div>
@@ -1343,7 +1341,7 @@ export default function DigitalMenu({
 
             <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold">
               <Clock className="w-3.5 h-3.5 text-[var(--tenant-primary)]" />
-              <span>{lang === 'ar' ? (tenant.hoursAr || 'ساعات العمل: ١٢ ظهراً - ١٢ ليلاً') : (tenant.hoursEn || 'Opening Hours: 12 PM - 12 AM')}</span>
+              <span>{lang === 'ar' ? (tenant.hoursAr || 'ساعات العمل: ١٢ ظهراً - ٢ ليلاً') : (tenant.hoursEn || 'Opening Hours: 12 PM - 2 AM')}</span>
             </div>
           </div>
 
@@ -1353,21 +1351,35 @@ export default function DigitalMenu({
               {lang === 'ar' ? 'فروعنا وعناويننا' : 'Our Branches & Locations'}
             </h4>
             <div className="space-y-4">
-              {branches.filter(b => b.tenantId === tenant.id).map(branch => (
-                <div key={branch.id} className="space-y-1 text-[10px] text-gray-400 font-semibold">
+              {branches.filter(b => b.tenantId === tenant.id).length > 0 ? (
+                branches.filter(b => b.tenantId === tenant.id).map(branch => (
+                  <div key={branch.id} className="space-y-1 text-[10px] text-gray-400 font-semibold">
+                    <div className="flex items-center gap-1.5 text-gray-900 dark:text-white font-bold">
+                      <MapPin className="w-3.5 h-3.5 text-[var(--tenant-primary)]" />
+                      <span>{lang === 'ar' ? branch.nameAr : branch.nameEn}</span>
+                    </div>
+                    <p className="mr-5">{lang === 'ar' ? branch.addressAr : branch.addressEn}</p>
+                    {(branch.phone || tenant.phone) && (
+                      <a href={`tel:${branch.phone || tenant.phone || '0555825356'}`} className="flex items-center gap-1 mr-5 hover:text-[var(--tenant-primary)] text-slate-500 dark:hover:text-[var(--tenant-primary)] transition text-[9px]">
+                        <Phone className="w-3 h-3 text-emerald-500" />
+                        <span>{branch.phone || tenant.phone || '0555825356'}</span>
+                      </a>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="space-y-1 text-[10px] text-gray-400 font-semibold">
                   <div className="flex items-center gap-1.5 text-gray-900 dark:text-white font-bold">
                     <MapPin className="w-3.5 h-3.5 text-[var(--tenant-primary)]" />
-                    <span>{lang === 'ar' ? branch.nameAr : branch.nameEn}</span>
+                    <span>{lang === 'ar' ? 'فرع الخبر - العليا' : 'Khobar Olaya Branch'}</span>
                   </div>
-                  <p className="mr-5">{lang === 'ar' ? branch.addressAr : branch.addressEn}</p>
-                  {branch.phone && (
-                    <a href={`tel:${branch.phone}`} className="flex items-center gap-1 mr-5 hover:text-[var(--tenant-primary)] text-slate-500 dark:hover:text-[var(--tenant-primary)] transition text-[9px]">
-                      <Phone className="w-3 h-3 text-emerald-500" />
-                      <span>{branch.phone}</span>
-                    </a>
-                  )}
+                  <p className="mr-5">{lang === 'ar' ? 'الخبر - العليا - بشار بن برد' : 'Khobar - Olaya - Bashar Bin Burd'}</p>
+                  <a href="tel:0555825356" className="flex items-center gap-1 mr-5 hover:text-[var(--tenant-primary)] text-slate-500 dark:hover:text-[var(--tenant-primary)] transition text-[9px]">
+                    <Phone className="w-3 h-3 text-emerald-500" />
+                    <span>0555825356</span>
+                  </a>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -1384,22 +1396,22 @@ export default function DigitalMenu({
             <div className="space-y-2.5">
               {/* WhatsApp Button */}
               <a 
-                href="#"
+                href={tenant.whatsappNumber && tenant.whatsappNumber !== '#' ? `https://wa.me/${tenant.whatsappNumber.replace(/[^0-9]/g, '')}` : 'https://wa.me/966555825356'}
+                target="_blank"
+                rel="noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-emerald-550/10 hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black transition border border-emerald-500/20"
               >
                 <MessageCircle className="w-4 h-4 text-emerald-500" />
                 <span>{lang === 'ar' ? 'دردشة واتساب مباشرة' : 'Direct WhatsApp Chat'}</span>
               </a>
               {/* Phone call button */}
-              {tenant.phone && (
-                <a 
-                  href={`tel:${tenant.phone}`}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[var(--tenant-primary)]/10 hover:bg-[var(--tenant-primary)]/20 text-rose-600 text-[10px] font-black transition border border-[var(--tenant-primary)]/20"
-                >
-                  <Phone className="w-4 h-4 text-[var(--tenant-primary)]" />
-                  <span>{lang === 'ar' ? `اتصل بنا: ${tenant.phone}` : `Call Support: ${tenant.phone}`}</span>
-                </a>
-              )}
+              <a 
+                href={`tel:${tenant.phone || '0555825356'}`}
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[var(--tenant-primary)]/10 hover:bg-[var(--tenant-primary)]/20 text-rose-600 text-[10px] font-black transition border border-[var(--tenant-primary)]/20"
+              >
+                <Phone className="w-4 h-4 text-[var(--tenant-primary)]" />
+                <span>{lang === 'ar' ? `اتصل بنا: ${tenant.phone || '0555825356'}` : `Call Support: ${tenant.phone || '0555825356'}`}</span>
+              </a>
             </div>
           </div>
 

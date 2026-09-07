@@ -3007,7 +3007,7 @@ export default function AdminDashboard({
                           setTenants(prev => prev.map(t => t.id === tenant.id ? { ...t, hoursAr: e.target.value } : t));
                         }
                       }}
-                      placeholder="ساعات العمل: ١٢ ظهراً - ١٢ ليلاً"
+                      placeholder="ساعات العمل: ١٢ ظهراً - ٢ ليلاً"
                       className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-xs"
                     />
                   </div>
@@ -3021,7 +3021,7 @@ export default function AdminDashboard({
                           setTenants(prev => prev.map(t => t.id === tenant.id ? { ...t, hoursEn: e.target.value } : t));
                         }
                       }}
-                      placeholder="Opening Hours: 12 PM - 12 AM"
+                      placeholder="Opening Hours: 12 PM - 2 AM"
                       className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-left"
                       dir="ltr"
                     />

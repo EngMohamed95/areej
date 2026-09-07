@@ -20,7 +20,13 @@ const normalizeMeatportTenants = (savedTenants?: Tenant[]): Tenant[] => {
   const savedMeatport = savedTenants?.find(t => t.id === 't-1');
   return [{
     ...initialTenants[0],
-    ...savedMeatport
+    ...savedMeatport,
+    phone: initialTenants[0].phone,
+    addressAr: initialTenants[0].addressAr,
+    addressEn: initialTenants[0].addressEn,
+    hoursAr: initialTenants[0].hoursAr,
+    hoursEn: initialTenants[0].hoursEn,
+    whatsappNumber: initialTenants[0].whatsappNumber,
   }];
 };
 
@@ -40,7 +46,10 @@ export default function App() {
       tenants[0]?.id !== 't-1' ||
       tenants[0]?.nameEn !== 'Meatport' ||
       tenants[0]?.nameAr !== 'Meatport' ||
-      tenants[0]?.slug !== 'meatport'
+      tenants[0]?.slug !== 'meatport' ||
+      tenants[0]?.phone !== initialTenants[0].phone ||
+      tenants[0]?.addressAr !== initialTenants[0].addressAr ||
+      tenants[0]?.hoursAr !== initialTenants[0].hoursAr
     ) {
       setTenants(normalized);
       return;
@@ -50,7 +59,32 @@ export default function App() {
 
   const [branches, setBranches] = useState<Branch[]>(() => {
     const saved = localStorage.getItem(`saas_branches`);
-    return saved ? JSON.parse(saved) : initialBranches;
+    if (!saved) {
+      localStorage.setItem(`saas_branches`, JSON.stringify(initialBranches));
+      return initialBranches;
+    }
+    try {
+      const parsed: Branch[] = JSON.parse(saved);
+      const updated = parsed.map(b => {
+        const init = initialBranches.find(ib => ib.id === b.id);
+        if (init) {
+          return {
+            ...b,
+            nameAr: init.nameAr,
+            nameEn: init.nameEn,
+            addressAr: init.addressAr,
+            addressEn: init.addressEn,
+            phone: init.phone
+          };
+        }
+        return b;
+      });
+      localStorage.setItem(`saas_branches`, JSON.stringify(updated));
+      return updated;
+    } catch {
+      localStorage.setItem(`saas_branches`, JSON.stringify(initialBranches));
+      return initialBranches;
+    }
   });
 
   useEffect(() => {

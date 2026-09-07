@@ -13,10 +13,15 @@ export const initialTenants: Tenant[] = [
     currencyAr: 'ر.س',
     descAr: 'نجمع بين عراقة المطبخ التركي وجودة المكونات الطازجة، لنقدّم لكم تجربة طعام مميزة تعكس أصالة الضيافة التركية.',
     descEn: 'We combine the heritage of Turkish cuisine with the quality of fresh ingredients, to offer you a unique dining experience that reflects the authenticity of Turkish hospitality.',
+    addressAr: 'الخبر - العليا - بشار بن برد',
+    addressEn: 'Khobar - Olaya - Bashar Bin Burd',
+    phone: '0555825356',
+    hoursAr: 'ساعات العمل: ١٢ ظهراً - ٢ ليلاً',
+    hoursEn: 'Opening Hours: 12 PM - 2 AM',
     facebookUrl: '#',
     instagramUrl: '#',
     twitterUrl: '#',
-    whatsappNumber: '#'
+    whatsappNumber: '0555825356'
   }
 ];
 
@@ -25,10 +30,10 @@ export const initialBranches: Branch[] = [
     id: 'b-1',
     tenantId: 't-1',
     nameEn: 'Khobar Olaya Branch',
-    nameAr: 'فرع العليا الخبر',
-    addressEn: 'Olaya District, Khobar, KSA',
-    addressAr: 'حي العليا، الخبر، المملكة العربية السعودية',
-    phone: '+966 13 898 7890',
+    nameAr: 'فرع الخبر - العليا',
+    addressEn: 'Khobar - Olaya - Bashar Bin Burd',
+    addressAr: 'الخبر - العليا - بشار بن برد',
+    phone: '0555825356',
     isActive: true
   }
 ];
