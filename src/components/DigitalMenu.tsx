@@ -819,7 +819,7 @@ export default function DigitalMenu({
           </div>
           <div className="text-right">
             <span className="text-[8px] font-bold uppercase tracking-wider text-white bg-[var(--tenant-primary)] px-2.5 py-0.5 rounded-full inline-block">
-              {lang === 'ar' ? 'أفضل المأكولات والمشروبات' : 'PREMIUM LOUNGE & DINING'}
+              {lang === 'ar' ? 'أفضل المأكولات والمشروبات' : 'PREMIUM RESTAURANT & DINING'}
             </span>
             <h2 className="text-lg md:text-xl font-black text-white tracking-tight mt-1.5">
               {lang === 'ar' ? `مرحباً بك في ${tenant.nameAr}` : `Welcome to ${tenant.nameEn}`}

@@ -9,7 +9,7 @@ import DigitalMenu from './components/DigitalMenu';
 import { Lock, ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react';
 
 // Clear legacy cached Meatport keys and synchronize Areej catalog version
-const AREEJ_CATALOG_VERSION = 'areej_v2.1';
+const AREEJ_CATALOG_VERSION = 'areej_v2.2';
 
 const syncAreejCatalog = () => {
   const legacyKeys = [
@@ -50,10 +50,12 @@ export default function App() {
           if (!parsed[0].logoUrl || parsed[0].logoUrl === '' || parsed[0].logoUrl.includes('meatport')) {
             parsed[0].logoUrl = initialTenants[0].logoUrl;
           }
-          if (parsed[0].nameEn === 'Areej Restaurant') {
-            parsed[0].nameEn = initialTenants[0].nameEn;
-            parsed[0].nameAr = initialTenants[0].nameAr;
-          }
+          parsed[0].nameEn = initialTenants[0].nameEn;
+          parsed[0].nameAr = initialTenants[0].nameAr;
+          parsed[0].descAr = initialTenants[0].descAr;
+          parsed[0].descEn = initialTenants[0].descEn;
+          parsed[0].copyrightAr = initialTenants[0].copyrightAr;
+          parsed[0].copyrightEn = initialTenants[0].copyrightEn;
           if (!parsed[0].primaryColor || parsed[0].primaryColor === '#e11d48') {
             parsed[0].primaryColor = initialTenants[0].primaryColor;
             parsed[0].secondaryColor = initialTenants[0].secondaryColor;
