@@ -822,21 +822,24 @@ export default function DigitalMenu({
               {lang === 'ar' ? 'أفضل المأكولات والمشروبات' : 'PREMIUM RESTAURANT & DINING'}
             </span>
             <h2 className="text-lg md:text-xl font-black text-white tracking-tight mt-1.5">
-              {lang === 'ar' ? `مرحباً بك في ${tenant.nameAr}` : `Welcome to ${tenant.nameEn}`}
+              {lang === 'ar' ? tenant.nameAr : tenant.nameEn}
             </h2>
             <p className="text-[9px] md:text-xs text-gray-300 mt-1 max-w-xl leading-relaxed font-medium">
               {lang === 'ar' 
-                ? (tenant.descAr || (tenant.id === 't-1' 
-                    ? 'نجمع بين عراقة المطبخ التركي وجودة المكونات الطازجة، لنقدّم لكم تجربة طعام مميزة تعكس أصالة الضيافة التركية.'
-                    : 'نقدّم لكم أشهى الوجبات المجهزة يدوياً وبأعلى معايير الجودة والطهو الإيطالي والشرقي الفاخر، باستخدام الخضروات واللحوم الطازجة يومياً.'))
-                : (tenant.descEn || (tenant.id === 't-1'
-                    ? 'We combine the heritage of Turkish cuisine with the quality of fresh ingredients, to offer you a unique dining experience that reflects the authenticity of Turkish hospitality.'
-                    : 'Indulge in our carefully crafted menu, prepared fresh daily by premium chefs using locally sourced fresh ingredients and traditional recipes.'))}
+                ? (tenant.descAr || 'أهلاً بكم في مطعم أريج، نقدّم لكم تجربة استثنائية من أشهى المأكولات والمشروبات بأعلى معايير الجودة والضيافة الراقية.')
+                : (tenant.descEn || 'Welcome to Areej Restaurant, offering an exquisite dining experience with handcrafted delicacies and exceptional hospitality.')}
             </p>
-            <div className="mt-2.5 flex items-center gap-2.5 text-[8px] text-gray-400 font-semibold">
-              <span>⏰ {lang === 'ar' ? '١٢ ظهراً - ٢ ليلاً' : '12 PM - 2 AM'}</span>
+            <div className="mt-2.5 flex items-center gap-2.5 text-[8px] text-gray-400 font-semibold flex-wrap">
+              <span>⏰ {lang === 'ar' ? (tenant.hoursAr || '١٢ ظهراً - ١٢ ليلاً') : (tenant.hoursEn || '12 PM - 12 AM')}</span>
               <span>•</span>
-              <span>📍 {lang === 'ar' ? 'الخبر - العليا - بشار بن برد' : 'Khobar - Olaya - Bashar Bin Burd'}</span>
+              <a 
+                href={tenant.mapsUrl || "https://maps.app.goo.gl/w3nkestjZoarGVBT8?g_st=iw"}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-white transition flex items-center gap-1 text-emerald-400 font-bold"
+              >
+                <span>📍 {lang === 'ar' ? 'موقعنا على الخريطة' : 'Google Maps Location'}</span>
+              </a>
             </div>
           </div>
         </div>
