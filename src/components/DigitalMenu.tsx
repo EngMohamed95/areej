@@ -50,7 +50,7 @@ interface DigitalMenuProps {
       discountAmount: number;
       taxAmount: number;
       total: number;
-      source: 'DigitalMenu' | 'POS';
+      source: 'DigitalMenu';
       tableNumber?: string;
       customerPhone?: string;
       deliveryAddress?: string;
@@ -91,8 +91,22 @@ export default function DigitalMenu({
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
   
-  const placeholdersAr = useMemo(() => ['ستيك تندرلوين طازج...', 'كباب لحم مشوي عالتيس...', 'سلطات مشكلة ولذيذة...', 'مقبلات ساخنة وبطاطس مقرمشة...', 'أطباق خاصة وكرات اللحم...'], []);
-  const placeholdersEn = useMemo(() => ['Fresh tenderloin steak...', 'Grilled meat kebab...', 'Crispy fresh salads...', 'Hot appetizers & fries...', 'Meatport special meatballs...'], []);
+  const placeholdersAr = useMemo(() => [
+    'سلطة أريج الخاصة...',
+    'بيتزا بوراتا نابولية...',
+    'سالمون بتر ليمون فاخر...',
+    'باستا فيتوتشيني ألفريدو...',
+    'قهوة مختصة V60 وسبانش لاتيه...',
+    'تيراميسو وكيك التمر الشهي...'
+  ], []);
+  const placeholdersEn = useMemo(() => [
+    'Special Areej Salad...',
+    'Artisan Neapolitan Pizza...',
+    'Pan-seared Salmon Butter Lemon...',
+    'Fettuccine Alfredo Pasta...',
+    'Specialty Coffee & Spanish Latte...',
+    'Signature Tiramisu & Date Cake...'
+  ], []);
   
   useEffect(() => {
     const timer = setInterval(() => {
@@ -117,21 +131,17 @@ export default function DigitalMenu({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Hero slider background images
+  // Hero slider background images - Areej authentic menu assets
   const heroImages = useMemo(() => {
-    if (tenant.id === 't-1') {
-      return [
-        'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=1600&q=80', // Turkish chef grilling kebab/meat
-        'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&q=80', // Steak preparation
-        'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600&q=80'  // Turkish food platter
-      ];
-    }
     return [
-      'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1600&q=80', // Pizza making
-      'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=1600&q=80', // Fresh pizza
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&q=80'  // Chef in kitchen
+      '/tenants/areej/assets/cat-main.jpg',
+      '/tenants/areej/assets/cat-pizza.jpg',
+      '/tenants/areej/assets/cat-pasta.jpg',
+      '/tenants/areej/assets/cat-salads.jpg',
+      '/tenants/areej/assets/cat-dessert.jpg',
+      '/tenants/areej/assets/cat-cold-drinks.jpg'
     ];
-  }, [tenant.id]);
+  }, []);
 
   const [activeHeroImageIndex, setActiveHeroImageIndex] = useState(0);
 
@@ -301,14 +311,14 @@ export default function DigitalMenu({
     const key = `${category?.id || ''} ${category?.nameEn || ''} ${category?.nameAr || ''}`.toLowerCase();
 
     if (!category) {
-      return { icon: '🍽️', glow: 'from-rose-500 to-red-700', ring: 'shadow-rose-500/30' };
+      return { icon: '🍽️', glow: 'from-[#c9a456] via-[#b38c3e] to-[#8c6b23]', ring: 'shadow-[#c9a456]/30' };
     }
     if (key.includes('salad') || key.includes('سلطات')) return { icon: '🥗', glow: 'from-lime-500 to-emerald-800', ring: 'shadow-lime-500/30' };
     if (key.includes('meze') || key.includes('باردة')) return { icon: '🥙', glow: 'from-emerald-500 to-teal-900', ring: 'shadow-emerald-500/30' };
     if (key.includes('hot') || key.includes('ساخنة')) return { icon: '🍟', glow: 'from-yellow-500 to-orange-800', ring: 'shadow-yellow-500/30' };
     if (key.includes('kebab') || key.includes('كباب')) return { icon: '🍢', glow: 'from-orange-500 to-red-800', ring: 'shadow-orange-500/30' };
     if (key.includes('meatball') || key.includes('كرات اللحم')) return { icon: '🧆', glow: 'from-amber-600 to-red-800', ring: 'shadow-amber-500/30' };
-    if (key.includes('meat port') || key.includes('ميت بورت') || key.includes('special') || key.includes('خاصة')) return { icon: '⭐', glow: 'from-yellow-400 to-rose-700', ring: 'shadow-yellow-500/30' };
+    if (key.includes('meat port') || key.includes('ميت بورت') || key.includes('areej') || key.includes('أريج') || key.includes('special') || key.includes('خاصة') || key.includes('lounge') || key.includes('لاونج')) return { icon: '⭐', glow: 'from-[#dfbe75] via-[#c9a456] to-[#8c6b23]', ring: 'shadow-[#c9a456]/40' };
     if (key.includes('meat') || key.includes('لحوم') || key.includes('grill')) return { icon: '🔥', glow: 'from-red-500 to-orange-900', ring: 'shadow-red-500/30' };
     if (key.includes('shawarma') || key.includes('شاورما') || key.includes('burger') || key.includes('برجر')) return { icon: '🌯', glow: 'from-amber-500 to-orange-900', ring: 'shadow-amber-500/30' };
     if (key.includes('steak') || key.includes('ستيك')) return { icon: '🥩', glow: 'from-red-600 to-stone-950', ring: 'shadow-red-500/30' };
@@ -316,7 +326,7 @@ export default function DigitalMenu({
     if (key.includes('dessert') || key.includes('حلويات') || key.includes('sweet')) return { icon: '🍰', glow: 'from-pink-400 to-fuchsia-800', ring: 'shadow-pink-500/30' };
     if (key.includes('drink') || key.includes('مشروبات') || key.includes('juice') || key.includes('عصائر')) return { icon: '🍹', glow: 'from-sky-400 to-blue-800', ring: 'shadow-sky-500/30' };
 
-    return { icon: '🍽️', glow: 'from-rose-500 to-red-800', ring: 'shadow-rose-500/30' };
+    return { icon: '🍽️', glow: 'from-[#c9a456] via-[#b38c3e] to-[#8c6b23]', ring: 'shadow-[#c9a456]/30' };
   };
 
   const handleCategorySelect = (categoryId: string) => {
@@ -453,10 +463,10 @@ export default function DigitalMenu({
   }, [cart]);
 
   const taxAmount = useMemo(() => {
-    // 15% VAT for Meatport, 5% for Pizza Al-Forno
-    const rate = tenant.id === 't-1' ? 0.15 : 0.05;
+    // 15% VAT standard rate
+    const rate = 0.15;
     return cartSubtotal * rate;
-  }, [cartSubtotal, tenant]);
+  }, [cartSubtotal]);
 
   const cartTotal = cartSubtotal + taxAmount;
 
@@ -469,21 +479,40 @@ export default function DigitalMenu({
     >
       <style dangerouslySetInnerHTML={{ __html: `
         :root {
-          --tenant-primary: ${tenant.primaryColor || '#e11d48'};
+          --tenant-primary: ${tenant.primaryColor || '#c9a456'};
+          --tenant-secondary: ${tenant.secondaryColor || '#dfbe75'};
+          --tenant-gold-dark: #8c6b23;
         }
         .text-rose-600 { color: var(--tenant-primary) !important; }
         .text-rose-500 { color: var(--tenant-primary) !important; }
+        .text-rose-400 { color: var(--tenant-secondary) !important; }
         .bg-rose-600 { background-color: var(--tenant-primary) !important; }
         .bg-rose-500 { background-color: var(--tenant-primary) !important; }
-        .hover\\:bg-rose-700:hover { filter: brightness(0.9) !important; }
-        .hover\\:bg-rose-600:hover { filter: brightness(0.9) !important; }
+        .hover\\:bg-rose-700:hover { background-color: var(--tenant-primary) !important; filter: brightness(0.9) !important; }
+        .hover\\:bg-rose-600:hover { background-color: var(--tenant-primary) !important; filter: brightness(0.9) !important; }
         .border-rose-600 { border-color: var(--tenant-primary) !important; }
         .border-rose-500 { border-color: var(--tenant-primary) !important; }
-        .bg-rose-5 { background-color: ${tenant.primaryColor || '#e11d48'}1a !important; }
+        .bg-rose-50 { background-color: rgba(201, 164, 86, 0.1) !important; }
+        .bg-rose-5 { background-color: rgba(201, 164, 86, 0.08) !important; }
+        .hover\\:bg-rose-50:hover { background-color: rgba(201, 164, 86, 0.16) !important; }
+        .hover\\:bg-rose-500\\/10:hover { background-color: rgba(201, 164, 86, 0.12) !important; }
+        .hover\\:text-rose-600:hover { color: var(--tenant-primary) !important; }
+        .border-rose-100 { border-color: rgba(201, 164, 86, 0.22) !important; }
+        .border-rose-200 { border-color: rgba(201, 164, 86, 0.35) !important; }
+        .border-rose-300 { border-color: rgba(201, 164, 86, 0.5) !important; }
+        .hover\\:border-rose-100:hover { border-color: rgba(201, 164, 86, 0.3) !important; }
+        .hover\\:border-rose-200:hover { border-color: rgba(201, 164, 86, 0.45) !important; }
+        .hover\\:border-rose-500\\/40:hover { border-color: rgba(201, 164, 86, 0.5) !important; }
+        .hover\\:border-rose-500\\/50:hover { border-color: rgba(201, 164, 86, 0.6) !important; }
         .text-rose-900 { color: var(--tenant-primary) !important; }
-        .hover\\:text-rose-400:hover { color: var(--tenant-primary) !important; }
-        .focus\\:border-rose-600:focus { border-color: var(--tenant-primary) !important; }
-        .focus\\:ring-rose-600:focus { --tw-ring-color: var(--tenant-primary) !important; }
+        .hover\\:text-rose-400:hover { color: var(--tenant-secondary) !important; }
+        .focus\\:border-rose-500:focus, .focus\\:border-rose-600:focus { border-color: var(--tenant-primary) !important; }
+        .focus\\:ring-rose-500\\/50:focus, .focus\\:ring-rose-600:focus { --tw-ring-color: var(--tenant-primary) !important; }
+        .shadow-rose-500\\/20, .shadow-rose-500\\/25, .shadow-rose-500\\/30, .shadow-rose-600\\/15 { 
+          box-shadow: 0 10px 25px -5px rgba(201, 164, 86, 0.35) !important; 
+        }
+        .from-rose-600 { --tw-gradient-from: #c9a456 var(--tw-gradient-from-position) !important; }
+        .to-red-800 { --tw-gradient-to: #8c6b23 var(--tw-gradient-to-position) !important; }
         
         @keyframes bounce-short {
           0%, 100% { transform: translateY(0); }
@@ -507,24 +536,15 @@ export default function DigitalMenu({
       }`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           
-          {/* Logo & Brand Name */}
-          <div className="flex items-center gap-2.5">
+          {/* Brand Logo Only */}
+          <a href="#hero" className="flex items-center focus:outline-hidden group">
             <img 
-              src={tenant.logoUrl} 
+              src={tenant.logoUrl || '/logo-areej.png'} 
               alt={tenant.nameEn} 
-              className="w-10 h-10 rounded-xl object-cover border border-gray-250 shadow-xs bg-white"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl object-contain border border-gray-200 dark:border-gray-800 shadow-xs bg-white p-0.5 transition-transform group-hover:scale-105"
               referrerPolicy="no-referrer"
             />
-            <div className="text-right">
-              <h1 className="text-xs sm:text-sm font-black tracking-tight leading-none mb-0.5">
-                {lang === 'ar' ? tenant.nameAr : tenant.nameEn}
-              </h1>
-              <p className="text-[8px] sm:text-[9px] text-gray-400 flex items-center gap-1 font-bold leading-none">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                {lang === 'ar' ? 'مفتوح للطلبات الآن' : 'Open for orders now'}
-              </p>
-            </div>
-          </div>
+          </a>
 
           {/* Desktop Nav Links (Hidden on Mobile) */}
           <div className="hidden md:flex items-center gap-6 text-xs font-bold text-gray-500 dark:text-gray-400">
@@ -610,13 +630,12 @@ export default function DigitalMenu({
             <div className="space-y-6">
               {/* Header inside drawer */}
               <div className="flex items-center justify-between border-b pb-4 dark:border-gray-800">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center">
                   <img 
-                    src={tenant.logoUrl} 
+                    src={tenant.logoUrl || '/logo-areej.png'} 
                     alt={tenant.nameEn} 
-                    className="w-8 h-8 rounded-lg object-cover"
+                    className="w-10 h-10 rounded-lg object-contain bg-white p-0.5 border border-gray-200 dark:border-gray-800 shadow-xs"
                   />
-                  <span className="text-xs font-black">{lang === 'ar' ? tenant.nameAr : tenant.nameEn}</span>
                 </div>
                 <button 
                   onClick={() => setIsMobileDrawerOpen(false)}
@@ -736,9 +755,16 @@ export default function DigitalMenu({
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto w-full px-6 pb-6 flex items-center gap-4">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/95 backdrop-blur-md p-1.5 shadow-2xl border border-white/20 shrink-0 flex items-center justify-center">
+            <img 
+              src={tenant.logoUrl || '/logo-areej.png'} 
+              alt={tenant.nameEn} 
+              className="w-full h-full object-contain"
+            />
+          </div>
           <div className="text-right">
             <span className="text-[8px] font-bold uppercase tracking-wider text-white bg-[var(--tenant-primary)] px-2.5 py-0.5 rounded-full inline-block">
-              {lang === 'ar' ? 'أفضل المأكولات الطازجة' : 'PREMIUM FOOD EXPERIENCE'}
+              {lang === 'ar' ? 'أفضل المأكولات والمشروبات' : 'PREMIUM LOUNGE & DINING'}
             </span>
             <h2 className="text-lg md:text-xl font-black text-white tracking-tight mt-1.5">
               {lang === 'ar' ? `مرحباً بك في ${tenant.nameAr}` : `Welcome to ${tenant.nameEn}`}
@@ -769,7 +795,7 @@ export default function DigitalMenu({
           {/* Creative Search Bar */}
           <div className="relative group">
             {/* Ambient background glow on focus/hover */}
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-rose-500 to-amber-500 rounded-2xl blur-md opacity-25 group-hover:opacity-40 transition duration-300 pointer-events-none" />
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-[#dfbe75] via-[#c9a456] to-[#8c6b23] rounded-2xl blur-md opacity-25 group-hover:opacity-40 transition duration-300 pointer-events-none" />
             
             <div className="relative">
               <Search className={`absolute top-4 left-4 w-4.5 h-4.5 transition-colors duration-300 ${searchQuery ? 'text-rose-500' : 'text-gray-400'}`} />
@@ -937,7 +963,7 @@ export default function DigitalMenu({
                 onClick={() => handleCategorySelect('all')}
                 className={`group relative rounded-2xl border p-2 md:p-3 text-center md:text-right transition-all duration-300 flex flex-col md:flex-row items-center gap-2 md:gap-3 w-full cursor-pointer ${
                   selectedCategory === 'all'
-                    ? 'border-transparent bg-gradient-to-br from-rose-600 to-red-800 text-white shadow-lg shadow-rose-500/25'
+                    ? 'border-transparent bg-gradient-to-br from-[#c9a456] via-[#b38c3e] to-[#8c6b23] text-white shadow-lg shadow-[#c9a456]/25'
                     : darkMode 
                       ? 'border-white/10 bg-gray-900/80 text-gray-200 hover:border-rose-500/50' 
                       : 'border-gray-200 bg-white text-gray-900 hover:border-rose-200 hover:shadow-md'
@@ -1320,9 +1346,9 @@ export default function DigitalMenu({
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <img 
-                src={tenant.logoUrl} 
+                src={tenant.logoUrl || '/logo-areej.png'} 
                 alt={tenant.nameEn} 
-                className="w-12 h-12 rounded-2xl object-cover border shadow-xs bg-white"
+                className="w-12 h-12 rounded-2xl object-contain border shadow-xs bg-white p-1"
                 referrerPolicy="no-referrer"
               />
               <div>
@@ -1473,14 +1499,14 @@ export default function DigitalMenu({
         }`}>
           <p>
             {lang === 'ar'
-              ? `جميع الحقوق محفوظة © ٢٠٢٦ لـ ${tenant.nameAr}. مدعوم بواسطة نظام فوديكس SaaS.`
-              : `All Rights Reserved © 2026 for ${tenant.nameEn}. Powered by Foodics SaaS Monolith System.`}
+              ? `جميع الحقوق محفوظة © ٢٠٢٦ لـ ${tenant.nameAr}.`
+              : `All Rights Reserved © 2026 for ${tenant.nameEn}.`}
           </p>
           <a
-            href="/staff"
+            href="/admin"
             className="mt-2 inline-flex items-center justify-center text-[10px] font-black text-gray-400 hover:text-[var(--tenant-primary)] transition"
           >
-            {lang === 'ar' ? 'تسجيل دخول' : 'Staff Login'}
+            {lang === 'ar' ? 'لوحة تحكم المنيو' : 'Menu Dashboard'}
           </a>
         </div>
       </footer>
@@ -2005,8 +2031,8 @@ export default function DigitalMenu({
                     }, items);
 
                     alert(lang === 'ar' 
-                      ? 'تم تسجيل طلبك بنجاح وسيتم إرساله إلى المطبخ والـ POS!' 
-                      : 'Your contactless order has been placed successfully & transmitted to Kitchen and POS!');
+                      ? 'تم تسجيل طلبك بنجاح! شكراً لطلبك.' 
+                      : 'Your order has been placed successfully! Thank you for your order.');
                     
                     // Reset fields
                     setCart([]);
@@ -2019,7 +2045,7 @@ export default function DigitalMenu({
                   }}
                   className="w-full py-3 bg-rose-600 text-white font-bold text-xs rounded-full hover:bg-rose-700 transition shadow-sm uppercase tracking-wider cursor-pointer"
                 >
-                  {lang === 'ar' ? 'إرسال الطلب للمطبخ والـ POS 🚀' : 'Transmit Order to Kitchen & POS 🚀'}
+                  {lang === 'ar' ? 'تأكيد وإرسال الطلب 🚀' : 'Confirm & Place Order 🚀'}
                 </button>
               </div>
             )}

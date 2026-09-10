@@ -21,7 +21,7 @@
 .category-scroller {
   cursor: grab;
   scroll-behavior: smooth;
-  scrollbar-color: rgba(225, 29, 72, 0.55) transparent;
+  scrollbar-color: var(--tenant-primary, rgba(201, 164, 86, 0.55)) transparent;
   scrollbar-width: thin;
   touch-action: pan-x;
   user-select: none;
@@ -41,7 +41,7 @@
 }
 
 .category-scroller::-webkit-scrollbar-thumb {
-  background: linear-gradient(90deg, rgba(225, 29, 72, 0.25), rgba(225, 29, 72, 0.75));
+  background: linear-gradient(90deg, rgba(201, 164, 86, 0.25), rgba(201, 164, 86, 0.85));
   border-radius: 999px;
 }
 
@@ -68,14 +68,14 @@
 }
 
 .product-add-button {
-  background: rgba(225, 29, 72, 0.08) !important;
-  color: #e11d48 !important;
+  background: rgba(201, 164, 86, 0.12) !important;
+  color: var(--tenant-primary, #c9a456) !important;
 }
 
 .product-card:hover .product-add-button,
 .group:hover .product-add-button,
 .product-add-button:hover {
-  background: var(--tenant-primary, #e11d48) !important;
+  background: var(--tenant-primary, #c9a456) !important;
   color: #ffffff !important;
 }
 

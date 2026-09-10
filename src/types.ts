@@ -12,9 +12,6 @@ export interface Tenant {
   addressEn?: string;
   addressAr?: string;
   phone?: string;
-  expiryDate?: string;
-  plan?: 'free' | 'basic' | 'premium' | 'enterprise';
-  status?: 'active' | 'suspended' | 'expired';
   enableDelivery?: boolean;
   secondaryColor?: string;
   darkMode?: boolean;
@@ -145,38 +142,6 @@ export interface AuditLog {
   details: string;
 }
 
-export interface UserSession {
-  id: string;
-  userId: string;
-  userEmail: string;
-  role: 'SuperAdmin' | 'BranchManager' | 'KitchenStaff' | 'Cashier';
-  branchId?: string;
-  loginTime: string;
-  ipAddress: string;
-}
-
-export interface Ingredient {
-  id: string;
-  tenantId: string;
-  nameEn: string;
-  nameAr: string;
-  sku: string;
-  stockQuantity: number;
-  unitEn: string;
-  unitAr: string;
-  costPerUnit: number;
-  supplierName: string;
-  status: 'in_stock' | 'low_stock' | 'out_of_stock';
-  reorderLevel: number;
-  totalConsumedCount: number; // For average consumption prediction calculations
-}
-
-export interface RecipeItem {
-  productId: string;
-  ingredientId: string;
-  quantityRequired: number; // Quantity consumed per unit sold
-}
-
 export interface Order {
   id: string;
   tenantId: string;
@@ -191,7 +156,7 @@ export interface Order {
   total: number;
   status: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled';
   createdAt: string; // ISO DateTime string
-  source: 'DigitalMenu' | 'POS';
+  source: 'DigitalMenu';
   preparationTimeEstimate?: number; // Total estimated prep time in minutes
   tableNumber?: string;
   customerPhone?: string;
@@ -214,4 +179,3 @@ export interface OrderItem {
     price: number;
   }[];
 }
-

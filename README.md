@@ -1,25 +1,22 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# مطعم أريج - قائمة الطعام الرقمية (areej-sa.net)
 
-# Run and deploy your AI Studio app
+نظام قائمة الطعام الرقمية ولوحة التحكم السريعة المخصصة لمطعم **أريج** ([areej-sa.net](https://areej-sa.net)).
 
-This contains everything you need to run your app locally.
+## المميزات
+- **قائمة طعام رقمية حديثة وذكية (Digital Menu)** تدعم اللغة العربية والإنجليزية، والوضع المظلم والفاتح، والبحث الذكي، والتصنيفات، وتفاصيل الأطباق وخيارات الإضافات، والطلب المباشر.
+- **لوحة تحكم خفيفة وسريعة (Menu Dashboard)** لإدارة المنتجات، الفئات، صور الأطباق، وإعدادات المتجر والهوية والفروع.
+- متوافق بالكامل مع جميع أجهزة الجوال والشاشات المختلفة.
 
-View your app in AI Studio: https://ai.studio/apps/d356b768-cf97-47b2-977f-a05de85bc789
+## التشغيل محلياً
+```bash
+# تثبيت التبعات
+npm install
 
-## Run Locally
+# تشغيل خادم التطوير
+npm run dev
+```
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
-
-## Deployment
-
-This project is configured with GitHub Actions to automatically build and deploy to the FTP host `ftp.meatport.net` on every push to the `main` branch.
-
+## بناء الإنتاج
+```bash
+npm run build
+```

@@ -12,4 +12,9 @@ node-portable.zip
 .tmp_inspect_downloaded/
 *.xlsx
 .agents/
+Menu.pdf
+menu_pages/
+extracted_menu.txt
+extracted_pages.json
+src/logo Areej.png
 

@@ -5,7 +5,7 @@ import {
   TrendingUp, Activity, Shuffle, Eye, EyeOff, Tag, Clock, Flame, Percent,
   Warehouse, Users, ChefHat, Menu, ShoppingBag, Archive, ClipboardList
 } from 'lucide-react';
-import { Product, Category, ModifierGroup, AuditLog, Tenant, Branch, Ingredient, RecipeItem, Order, OrderItem } from '../types';
+import { Product, Category, ModifierGroup, AuditLog, Tenant, Branch } from '../types';
 
 interface AdminDashboardProps {
   tenant: Tenant;
@@ -14,17 +14,11 @@ interface AdminDashboardProps {
   products: Product[];
   categories: Category[];
   modifierGroups: ModifierGroup[];
-  auditLogs: AuditLog[];
+  auditLogs?: AuditLog[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
-  addAuditLog: (action: string, entityName: string, entityId: string, details: string) => void;
+  addAuditLog?: (action: string, entityName: string, entityId: string, details: string) => void;
   lang: 'en' | 'ar';
-  ingredients: Ingredient[];
-  setIngredients: React.Dispatch<React.SetStateAction<Ingredient[]>>;
-  recipes: RecipeItem[];
-  orders: Order[];
-  setOrders: React.Dispatch<React.SetStateAction<Order[]>>;
-  orderItems: OrderItem[];
   currentPath: string;
   navigateTo: (path: string) => void;
   activeStaff?: any;
@@ -46,12 +40,6 @@ export default function AdminDashboard({
   setCategories,
   addAuditLog,
   lang,
-  ingredients,
-  setIngredients,
-  recipes,
-  orders,
-  setOrders,
-  orderItems,
   currentPath,
   navigateTo,
   activeStaff,
@@ -62,193 +50,18 @@ export default function AdminDashboard({
 }: AdminDashboardProps) {
   // Dynamically calculate the active tab from the URL pathname
   const activeTab = (() => {
-    if (currentPath === '/staff/categories') return 'categories';
-    if (currentPath === '/staff/inventory') return 'inventory';
-    if (currentPath === '/staff/kitchen-analytics') return 'kitchen_analytics';
-    if (currentPath === '/staff/hr') return 'hr';
-    if (currentPath === '/staff/logs') return 'logs';
-    if (currentPath === '/staff/settings') return 'settings';
-    return 'products'; // fallback for /staff or /staff/products
+    if (currentPath === '/admin/categories' || currentPath === '/staff/categories') return 'categories';
+    if (currentPath === '/admin/settings' || currentPath === '/staff/settings') return 'settings';
+    return 'products'; // fallback
   })();
 
-  const setActiveTab = (tab: 'products' | 'categories' | 'inventory' | 'hr' | 'logs' | 'kitchen_analytics' | 'settings') => {
-    if (tab === 'products') navigateTo('/staff/products');
-    else if (tab === 'categories') navigateTo('/staff/categories');
-    else if (tab === 'inventory') navigateTo('/staff/inventory');
-    else if (tab === 'kitchen_analytics') navigateTo('/staff/kitchen-analytics');
-    else if (tab === 'hr') navigateTo('/staff/hr');
-    else if (tab === 'logs') navigateTo('/staff/logs');
-    else if (tab === 'settings') navigateTo('/staff/settings');
+  const setActiveTab = (tab: 'products' | 'categories' | 'settings') => {
+    if (tab === 'products') navigateTo('/admin/products');
+    else if (tab === 'categories') navigateTo('/admin/categories');
+    else if (tab === 'settings') navigateTo('/admin/settings');
   };
 
   const [selectedBranch, setSelectedBranch] = useState<string>(branches[0]?.id || '');
-
-  // HR employee state with tenant localStorage persistence
-  const [employees, setEmployees] = useState<{
-    id: string;
-    nameEn: string;
-    nameAr: string;
-    roleEn: string;
-    roleAr: string;
-    contractType: 'full_time' | 'part_time';
-    salary: number;
-    shiftEn: string;
-    shiftAr: string;
-    phone: string;
-    status: 'active' | 'on_leave' | 'suspended';
-    pinCode?: string;
-    systemRole?: 'manager' | 'cashier' | 'kitchen';
-  }[]>(() => {
-    const saved = localStorage.getItem(`saas_employees_${tenant.id}`);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        const hasOldDefaults = parsed.some((e: any) => e.id === 'emp-1' || e.id === 'emp-20');
-        if (!hasOldDefaults && parsed.length > 0) {
-          let modified = false;
-          let updated = parsed.map((e: any) => {
-            if (e.id === 'emp-admin-1' && (e.nameAr === 'مدير بيت الذواقة' || e.nameEn === 'Gourmet Manager')) {
-              modified = true;
-              return { ...e, nameEn: 'Meatport Manager', nameAr: 'مدير Meatport' };
-            }
-            return e;
-          });
-          const hasCashier = updated.some((e: any) => e.systemRole === 'cashier');
-          if (!hasCashier) {
-            modified = true;
-            const defaultCashier = { id: 'emp-cashier-1', nameEn: 'Meatport Cashier', nameAr: 'كاشير Meatport', roleEn: 'Cashier', roleAr: 'كاشير', contractType: 'full_time', salary: 5000, shiftEn: 'General', shiftAr: 'عامة', phone: '+966500000001', status: 'active', pinCode: '1234', systemRole: 'cashier' };
-            updated.push(defaultCashier);
-          }
-          if (modified) {
-            localStorage.setItem(`saas_employees_${tenant.id}`, JSON.stringify(updated));
-          }
-          return updated;
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    
-    // Default dynamic list containing only the main Manager per tenant
-    const defaultList = [
-      { id: 'emp-admin-1', nameEn: 'Meatport Manager', nameAr: 'مدير Meatport', roleEn: 'Restaurant Manager', roleAr: 'مدير المطعم', contractType: 'full_time', salary: 10000, shiftEn: 'General', shiftAr: 'عامة', phone: '+966500000000', status: 'active', pinCode: '0000', systemRole: 'manager' },
-      { id: 'emp-cashier-1', nameEn: 'Meatport Cashier', nameAr: 'كاشير Meatport', roleEn: 'Cashier', roleAr: 'كاشير', contractType: 'full_time', salary: 5000, shiftEn: 'General', shiftAr: 'عامة', phone: '+966500000001', status: 'active', pinCode: '1234', systemRole: 'cashier' }
-    ];
-    localStorage.setItem(`saas_employees_${tenant.id}`, JSON.stringify(defaultList));
-    return defaultList;
-  });
-
-  // Sync to local storage when employees state changes for this tenant
-  useEffect(() => {
-    localStorage.setItem(`saas_employees_${tenant.id}`, JSON.stringify(employees));
-  }, [employees, tenant.id]);
-
-  // Reload employee roster if tenant changes
-  useEffect(() => {
-    const saved = localStorage.getItem(`saas_employees_${tenant.id}`);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        const hasOldDefaults = parsed.some((e: any) => e.id === 'emp-1' || e.id === 'emp-20');
-        if (!hasOldDefaults && parsed.length > 0) {
-          let modified = false;
-          let updated = parsed.map((e: any) => {
-            if (e.id === 'emp-admin-1' && (e.nameAr === 'مدير بيت الذواقة' || e.nameEn === 'Gourmet Manager')) {
-              modified = true;
-              return { ...e, nameEn: 'Meatport Manager', nameAr: 'مدير Meatport' };
-            }
-            return e;
-          });
-          const hasCashier = updated.some((e: any) => e.systemRole === 'cashier');
-          if (!hasCashier) {
-            modified = true;
-            const defaultCashier = { id: 'emp-cashier-1', nameEn: 'Meatport Cashier', nameAr: 'كاشير Meatport', roleEn: 'Cashier', roleAr: 'كاشير', contractType: 'full_time', salary: 5000, shiftEn: 'General', shiftAr: 'عامة', phone: '+966500000001', status: 'active', pinCode: '1234', systemRole: 'cashier' };
-            updated.push(defaultCashier);
-          }
-          if (modified) {
-            localStorage.setItem(`saas_employees_${tenant.id}`, JSON.stringify(updated));
-          }
-          setEmployees(updated);
-          return;
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    
-    const defaultList = [
-      { id: 'emp-admin-1', nameEn: 'Meatport Manager', nameAr: 'مدير Meatport', roleEn: 'Restaurant Manager', roleAr: 'مدير المطعم', contractType: 'full_time', salary: 10000, shiftEn: 'General', shiftAr: 'عامة', phone: '+966500000000', status: 'active', pinCode: '0000', systemRole: 'manager' },
-      { id: 'emp-cashier-1', nameEn: 'Meatport Cashier', nameAr: 'كاشير Meatport', roleEn: 'Cashier', roleAr: 'كاشير', contractType: 'full_time', salary: 5000, shiftEn: 'General', shiftAr: 'عامة', phone: '+966500000001', status: 'active', pinCode: '1234', systemRole: 'cashier' }
-    ];
-    setEmployees(defaultList);
-    localStorage.setItem(`saas_employees_${tenant.id}`, JSON.stringify(defaultList));
-  }, [tenant.id]);
-
-  // Map local state inventoryItems references to global database state
-  const inventoryItems = ingredients;
-  const setInventoryItems = setIngredients;
-
-  // State hooks for Add Inventory modal/form
-  const [showInventoryModal, setShowInventoryModal] = useState(false);
-  const [invNameEn, setInvNameEn] = useState('');
-  const [invNameAr, setInvNameAr] = useState('');
-  const [invSku, setInvSku] = useState('');
-  const [invStock, setInvStock] = useState('100');
-  const [invUnitEn, setInvUnitEn] = useState('pcs');
-  const [invUnitAr, setInvUnitAr] = useState('حبة');
-  const [invCost, setInvCost] = useState('1.5');
-  const [invSupplier, setInvSupplier] = useState('');
-  const [invReorder, setInvReorder] = useState('20');
-
-  // State hooks for Add HR Employee modal/form
-  const [showEmployeeModal, setShowEmployeeModal] = useState(false);
-  const [editingEmployee, setEditingEmployee] = useState<any | null>(null);
-  const [empNameEn, setEmpNameEn] = useState('');
-  const [empNameAr, setEmpNameAr] = useState('');
-  const [empRoleEn, setEmpRoleEn] = useState('');
-  const [empRoleAr, setEmpRoleAr] = useState('');
-  const [empContract, setEmpContract] = useState<'full_time' | 'part_time'>('full_time');
-  const [empSalary, setEmpSalary] = useState('4500');
-  const [empShiftEn, setEmpShiftEn] = useState('Morning Shift');
-  const [empShiftAr, setEmpShiftAr] = useState('الوردية الصباحية');
-  const [empPhone, setEmpPhone] = useState('');
-  const [empStatus, setEmpStatus] = useState<'active' | 'on_leave' | 'suspended'>('active');
-  const [empPinCode, setEmpPinCode] = useState('');
-  const [empSystemRole, setEmpSystemRole] = useState<'manager' | 'cashier' | 'kitchen'>('cashier');
-
-  const startEditEmployee = (emp: any) => {
-    setEditingEmployee(emp);
-    setEmpNameEn(emp.nameEn || '');
-    setEmpNameAr(emp.nameAr || '');
-    setEmpRoleEn(emp.roleEn || '');
-    setEmpRoleAr(emp.roleAr || '');
-    setEmpContract(emp.contractType || 'full_time');
-    setEmpSalary((emp.salary || 4500).toString());
-    setEmpShiftEn(emp.shiftEn || 'Morning Shift');
-    setEmpShiftAr(emp.shiftAr || 'الوردية الصباحية');
-    setEmpPhone(emp.phone || '');
-    setEmpStatus(emp.status || 'active');
-    setEmpPinCode(emp.pinCode || '');
-    setEmpSystemRole(emp.systemRole || 'cashier');
-    setShowEmployeeModal(true);
-  };
-
-  const startHireEmployee = () => {
-    setEditingEmployee(null);
-    setEmpNameEn('');
-    setEmpNameAr('');
-    setEmpRoleEn('');
-    setEmpRoleAr('');
-    setEmpContract('full_time');
-    setEmpSalary('4500');
-    setEmpShiftEn('Morning Shift');
-    setEmpShiftAr('الوردية الصباحية');
-    setEmpPhone('');
-    setEmpStatus('active');
-    setEmpPinCode('');
-    setEmpSystemRole('cashier');
-    setShowEmployeeModal(true);
-  };
   
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
@@ -599,10 +412,10 @@ export default function AdminDashboard({
 
     if (editingProduct) {
       setProducts(prev => prev.map(p => p.id === editingProduct.id ? productPayload : p));
-      addAuditLog('UPDATE_PRODUCT', 'Product', productPayload.id, `Updated product detail: ${productPayload.nameEn} (SKU: ${productPayload.sku})`);
+      addAuditLog?.('UPDATE_PRODUCT', 'Product', productPayload.id, `Updated product detail: ${productPayload.nameEn} (SKU: ${productPayload.sku})`);
     } else {
       setProducts(prev => [...prev, productPayload]);
-      addAuditLog('CREATE_PRODUCT', 'Product', productPayload.id, `Created product: ${productPayload.nameEn} (SKU: ${productPayload.sku})`);
+      addAuditLog?.('CREATE_PRODUCT', 'Product', productPayload.id, `Created product: ${productPayload.nameEn} (SKU: ${productPayload.sku})`);
     }
 
     setShowProductModal(false);
@@ -628,10 +441,10 @@ export default function AdminDashboard({
 
     if (editingCategory) {
       setCategories(prev => prev.map(c => c.id === editingCategory.id ? categoryPayload : c));
-      addAuditLog('UPDATE_CATEGORY', 'Category', categoryPayload.id, `Updated category: ${categoryPayload.nameEn}`);
+      addAuditLog?.('UPDATE_CATEGORY', 'Category', categoryPayload.id, `Updated category: ${categoryPayload.nameEn}`);
     } else {
       setCategories(prev => [...prev, categoryPayload]);
-      addAuditLog('CREATE_CATEGORY', 'Category', categoryPayload.id, `Created new category: ${categoryPayload.nameEn}`);
+      addAuditLog?.('CREATE_CATEGORY', 'Category', categoryPayload.id, `Created new category: ${categoryPayload.nameEn}`);
     }
 
     setShowCategoryModal(false);
@@ -644,7 +457,7 @@ export default function AdminDashboard({
     if (!target) return;
     if (confirm(lang === 'ar' ? `هل أنت متأكد من حذف ${target.nameAr}؟` : `Are you sure you want to delete ${target.nameEn}?`)) {
       setProducts(prev => prev.filter(p => p.id !== id));
-      addAuditLog('DELETE_PRODUCT', 'Product', id, `Soft deleted product: ${target.nameEn}`);
+      addAuditLog?.('DELETE_PRODUCT', 'Product', id, `Soft deleted product: ${target.nameEn}`);
     }
   };
 
@@ -654,7 +467,7 @@ export default function AdminDashboard({
     if (!target) return;
     if (confirm(lang === 'ar' ? `هل أنت متأكد من حذف فئة ${target.nameAr}؟` : `Are you sure you want to delete category ${target.nameEn}?`)) {
       setCategories(prev => prev.filter(c => c.id !== id));
-      addAuditLog('DELETE_CATEGORY', 'Category', id, `Soft deleted category: ${target.nameEn}`);
+      addAuditLog?.('DELETE_CATEGORY', 'Category', id, `Soft deleted category: ${target.nameEn}`);
     }
   };
 
@@ -700,7 +513,7 @@ export default function AdminDashboard({
       }
       return p;
     }));
-    addAuditLog('BULK_UPDATE_VISIBILITY', 'Product', 'bulk', `Toggled visibility to ${isVisible} for ${selectedProductIds.length} items.`);
+    addAuditLog?.('BULK_UPDATE_VISIBILITY', 'Product', 'bulk', `Toggled visibility to ${isVisible} for ${selectedProductIds.length} items.`);
     setSelectedProductIds([]);
   };
 
@@ -712,7 +525,7 @@ export default function AdminDashboard({
       }
       return p;
     }));
-    addAuditLog('BULK_APPLY_DISCOUNT', 'Product', 'bulk', `Applied 15% Bulk Discount promo to ${selectedProductIds.length} items.`);
+    addAuditLog?.('BULK_APPLY_DISCOUNT', 'Product', 'bulk', `Applied 15% Bulk Discount promo to ${selectedProductIds.length} items.`);
     setSelectedProductIds([]);
   };
 
@@ -720,7 +533,7 @@ export default function AdminDashboard({
     if (selectedProductIds.length === 0) return;
     if (confirm(lang === 'ar' ? `هل أنت متأكد من حذف ${selectedProductIds.length} منتجات مجمعة؟` : `Are you sure you want to delete ${selectedProductIds.length} selected items?`)) {
       setProducts(prev => prev.filter(p => !selectedProductIds.includes(p.id)));
-      addAuditLog('BULK_DELETE_PRODUCTS', 'Product', 'bulk', `Bulk soft deleted ${selectedProductIds.length} items.`);
+      addAuditLog?.('BULK_DELETE_PRODUCTS', 'Product', 'bulk', `Bulk soft deleted ${selectedProductIds.length} items.`);
       setSelectedProductIds([]);
     }
   };
@@ -740,7 +553,7 @@ export default function AdminDashboard({
     link.click();
     document.body.removeChild(link);
 
-    addAuditLog('EXPORT_MENU_CSV', 'Product', 'bulk', `Exported current product catalog containing ${tenantProducts.length} items to CSV format.`);
+    addAuditLog?.('EXPORT_MENU_CSV', 'Product', 'bulk', `Exported current product catalog containing ${tenantProducts.length} items to CSV format.`);
   };
 
   // Import menu from CSV
@@ -818,7 +631,7 @@ export default function AdminDashboard({
 
         if (newProductsAdded.length > 0) {
           setProducts(prev => [...prev, ...newProductsAdded]);
-          addAuditLog('IMPORT_MENU_CSV', 'Product', 'bulk', `Successfully bulk imported ${newProductsAdded.length} new items into catalog via CSV parse.`);
+          addAuditLog?.('IMPORT_MENU_CSV', 'Product', 'bulk', `Successfully bulk imported ${newProductsAdded.length} new items into catalog via CSV parse.`);
           alert(lang === 'ar' ? `تم استيراد ${newProductsAdded.length} منتجات بنجاح!` : `Successfully imported ${newProductsAdded.length} products!`);
         }
       } catch (err) {
@@ -834,8 +647,8 @@ export default function AdminDashboard({
     <div className="flex flex-row h-screen w-screen overflow-hidden text-gray-800 dark:text-gray-100 font-sans bg-gray-50/50 dark:bg-gray-950" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
       <style dangerouslySetInnerHTML={{ __html: `
         :root {
-          --tenant-primary: ${tenant.primaryColor || '#e11d48'};
-          --tenant-secondary: ${tenant.secondaryColor || '#fb7185'};
+          --tenant-primary: ${tenant.primaryColor || '#c9a456'};
+          --tenant-secondary: ${tenant.secondaryColor || '#dfbe75'};
         }
         .text-rose-600 { color: var(--tenant-primary) !important; }
         .text-rose-500 { color: var(--tenant-primary) !important; }
@@ -869,10 +682,10 @@ export default function AdminDashboard({
 
           <div className="flex items-center gap-3 pb-4 mb-2">
             {tenant.logoUrl ? (
-              <img src={tenant.logoUrl} alt={tenant.nameEn} className="w-10 h-10 rounded-xl object-cover bg-white shadow-xs border border-gray-100" />
+              <img src={tenant.logoUrl} alt={tenant.nameEn} className="w-10 h-10 rounded-xl object-contain bg-white shadow-xs border border-gray-100 p-0.5" />
             ) : (
               <div className="w-10 h-10 rounded-xl bg-rose-600/10 text-rose-600 flex items-center justify-center font-black text-lg">
-                MP
+                {tenant.nameAr ? tenant.nameAr.slice(0, 2) : '🍽️'}
               </div>
             )}
             <div>
@@ -880,7 +693,7 @@ export default function AdminDashboard({
                 {lang === 'ar' ? tenant.nameAr : tenant.nameEn}
               </h1>
               <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">
-                {lang === 'ar' ? 'لوحة الإدارة والمستودعات' : 'Enterprise Control Panel'}
+                {lang === 'ar' ? 'لوحة تحكم قائمة الطعام' : 'Menu Management'}
               </span>
             </div>
           </div>
@@ -897,7 +710,7 @@ export default function AdminDashboard({
                 }`}
               >
                 <ShoppingBag className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'إدارة المنتجات' : 'Products catalog'}</span>
+                <span>{lang === 'ar' ? 'إدارة المنتجات والأطباق' : 'Products & Dishes'}</span>
               </button>
 
               <button
@@ -907,47 +720,7 @@ export default function AdminDashboard({
                 }`}
               >
                 <Layers className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'إدارة الفئات' : 'Categories & Groups'}</span>
-              </button>
-
-              <button
-                onClick={() => { setActiveTab('inventory'); setMobileMenuOpen(false); }}
-                className={`w-full px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 cursor-pointer ${
-                  activeTab === 'inventory' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'
-                }`}
-              >
-                <Archive className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'إدارة المخزن والمستودع' : 'Stock & Inventory'}</span>
-              </button>
-
-              <button
-                onClick={() => { setActiveTab('kitchen_analytics'); setMobileMenuOpen(false); }}
-                className={`w-full px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 cursor-pointer ${
-                  activeTab === 'kitchen_analytics' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'
-                }`}
-              >
-                <ClipboardList className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'عمليات المطبخ والطلبات' : 'Kitchen Operations'}</span>
-              </button>
-
-              <button
-                onClick={() => { setActiveTab('hr'); setMobileMenuOpen(false); }}
-                className={`w-full px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 cursor-pointer ${
-                  activeTab === 'hr' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'
-                }`}
-              >
-                <Users className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'شؤون الموظفين (HR)' : 'HR & Roster'}</span>
-              </button>
-
-              <button
-                onClick={() => { setActiveTab('logs'); setMobileMenuOpen(false); }}
-                className={`w-full px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 cursor-pointer ${
-                  activeTab === 'logs' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'
-                }`}
-              >
-                <FileText className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'سجل العمليات والتدقيق' : 'Tenant Logs'}</span>
+                <span>{lang === 'ar' ? 'إدارة الفئات والأقسام' : 'Categories & Groups'}</span>
               </button>
 
               <button
@@ -957,8 +730,18 @@ export default function AdminDashboard({
                 }`}
               >
                 <Settings className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'إعدادات النظام العامة' : 'General Settings'}</span>
+                <span>{lang === 'ar' ? 'إعدادات المتجر وهوية المنيو' : 'Store & Menu Settings'}</span>
               </button>
+
+              <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+                <button
+                  onClick={() => { navigateTo('/menu'); setMobileMenuOpen(false); }}
+                  className="w-full px-4 py-2.5 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50/70 dark:bg-rose-950/30 hover:bg-rose-100 transition flex items-center gap-2.5 cursor-pointer"
+                >
+                  <Eye className="w-4 h-4" />
+                  <span>{lang === 'ar' ? 'معاينة المنيو للعملاء' : 'View Live Menu'}</span>
+                </button>
+              </div>
             </nav>
           </div>
         </div>
@@ -998,10 +781,10 @@ export default function AdminDashboard({
           {/* Logo & Brand title */}
           <div className="flex items-center gap-3 pb-4 mb-2">
             {tenant.logoUrl ? (
-              <img src={tenant.logoUrl} alt={tenant.nameEn} className="w-10 h-10 rounded-xl object-cover bg-white shadow-xs border border-gray-100" />
+              <img src={tenant.logoUrl} alt={tenant.nameEn} className="w-10 h-10 rounded-xl object-contain bg-white shadow-xs border border-gray-100 p-0.5" />
             ) : (
               <div className="w-10 h-10 rounded-xl bg-rose-600/10 text-rose-600 flex items-center justify-center font-black text-lg">
-                MP
+                {tenant.nameAr ? tenant.nameAr.slice(0, 2) : '🍽️'}
               </div>
             )}
             <div>
@@ -1009,7 +792,7 @@ export default function AdminDashboard({
                 {lang === 'ar' ? tenant.nameAr : tenant.nameEn}
               </h1>
               <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">
-                {lang === 'ar' ? 'لوحة الإدارة والمستودعات' : 'Enterprise Control Panel'}
+                {lang === 'ar' ? 'لوحة تحكم قائمة الطعام' : 'Menu Management'}
               </span>
             </div>
           </div>
@@ -1029,7 +812,7 @@ export default function AdminDashboard({
                 }`}
               >
                 <Package className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'إدارة المنتجات' : 'Products Grid'}</span>
+                <span>{lang === 'ar' ? 'إدارة المنتجات والأطباق' : 'Products & Dishes'}</span>
               </button>
 
               <button
@@ -1041,55 +824,7 @@ export default function AdminDashboard({
                 }`}
               >
                 <Layers className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'إدارة الفئات' : 'Categories Deck'}</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('inventory')}
-                className={`w-full px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 cursor-pointer ${
-                  activeTab === 'inventory'
-                    ? 'bg-rose-600 text-white shadow-sm'
-                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'
-                }`}
-              >
-                <Warehouse className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'إدارة المخازن' : 'Inventory & Stocks'}</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('kitchen_analytics')}
-                className={`w-full px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 cursor-pointer ${
-                  activeTab === 'kitchen_analytics'
-                    ? 'bg-rose-600 text-white shadow-sm'
-                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'
-                }`}
-              >
-                <ChefHat className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'تحليلات ومخازن المطبخ' : 'Kitchen Operations'}</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('hr')}
-                className={`w-full px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 cursor-pointer ${
-                  activeTab === 'hr'
-                    ? 'bg-rose-600 text-white shadow-sm'
-                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'
-                }`}
-              >
-                <Users className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'شؤون الموظفين (HR)' : 'HR & Roster'}</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('logs')}
-                className={`w-full px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 cursor-pointer ${
-                  activeTab === 'logs'
-                    ? 'bg-rose-600 text-white shadow-sm'
-                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'
-                }`}
-              >
-                <FileText className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'سجل العمليات والتدقيق' : 'Tenant Logs'}</span>
+                <span>{lang === 'ar' ? 'إدارة الفئات والأقسام' : 'Categories & Groups'}</span>
               </button>
 
               <button
@@ -1101,8 +836,18 @@ export default function AdminDashboard({
                 }`}
               >
                 <Settings className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'إعدادات النظام العامة' : 'General Settings'}</span>
+                <span>{lang === 'ar' ? 'إعدادات المتجر وهوية المنيو' : 'Store & Menu Settings'}</span>
               </button>
+
+              <div className="pt-3 border-t border-gray-100/50 dark:border-gray-800">
+                <button
+                  onClick={() => navigateTo('/menu')}
+                  className="w-full px-4 py-2.5 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50/70 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-950/50 transition flex items-center gap-2.5 cursor-pointer"
+                >
+                  <Eye className="w-4 h-4" />
+                  <span>{lang === 'ar' ? 'معاينة المنيو للعملاء' : 'View Live Menu'}</span>
+                </button>
+              </div>
             </nav>
           </div>
         </div>
@@ -1146,15 +891,23 @@ export default function AdminDashboard({
           <div>
             <h1 className="text-sm font-black text-gray-950 dark:text-white flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
-              {lang === 'ar' ? 'بوابة إدارة كتالوج القائمة' : 'Menu Catalog Administration Portal'}
+              {lang === 'ar' ? 'لوحة تحكم قائمة الطعام' : 'Menu Management Dashboard'}
             </h1>
             <p className="text-[10px] text-gray-400 font-bold mt-0.5">
-              {lang === 'ar' ? `المستأجر النشط: ${tenant.nameAr}` : `Active SaaS Tenant: ${tenant.nameEn}`}
+              {lang === 'ar' ? `المطعم: ${tenant.nameAr}` : `Restaurant: ${tenant.nameEn}`}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             {/* Export / Import Buttons */}
+            <button
+              onClick={() => navigateTo('/menu')}
+              type="button"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200/60 rounded-lg hover:bg-rose-100 transition shadow-xs cursor-pointer"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              {lang === 'ar' ? 'معاينة المنيو' : 'Live Menu'}
+            </button>
             <button 
               onClick={handleExportCSV}
               type="button"
@@ -1543,928 +1296,6 @@ export default function AdminDashboard({
         </div>
       )}
 
-      {activeTab === 'logs' && (
-        <div className="space-y-4">
-          <div className="bg-white rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.035)] overflow-hidden p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                <Activity className="w-4 h-4 text-rose-600" />
-                {lang === 'ar' ? 'سجل العمليات والتدقيق الأمني' : 'Security Audits & Multi-Tenant Registry'}
-              </h3>
-              <span className="text-xs bg-gray-50 border border-gray-100 px-2.5 py-1 rounded text-gray-500 font-mono">
-                {lang === 'ar' ? 'قفل الخادم النشط' : 'Secure Session Logged'}
-              </span>
-            </div>
-
-            <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-              {auditLogs.filter(log => log.tenantId === tenant.id).map((log) => (
-                <div key={log.id} className="p-3.5 bg-gray-50 border border-gray-100 rounded-lg text-xs font-sans flex items-start justify-between gap-4 hover:bg-white transition hover:shadow-sm">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded text-[9px] font-bold tracking-wider ${
-                        log.action.includes('CREATE') ? 'bg-green-100 text-green-700 border border-green-200' :
-                        log.action.includes('UPDATE') ? 'bg-blue-100 text-blue-700 border border-blue-200' :
-                        'bg-rose-100 text-rose-700 border border-rose-200'
-                      }`}>
-                        {log.action}
-                      </span>
-                      <span className="font-semibold text-gray-800">{log.details}</span>
-                    </div>
-                    <div className="text-[10px] text-gray-400 flex items-center gap-2">
-                      <span className="font-medium text-gray-500">{log.userEmail} ({log.userRole})</span>
-                      <span>•</span>
-                      <span className="font-mono">ID: {log.entityId}</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-gray-400 font-mono whitespace-nowrap">
-                    {new Date(log.timestamp).toLocaleTimeString()}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* INVENTORY MANAGEMENT SYSTEM */}
-      {activeTab === 'inventory' && (
-        <div className="space-y-6">
-          {/* Inventory Stats cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-xs flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-rose-50 text-rose-600">
-                <Warehouse className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] text-gray-400 block font-semibold uppercase">{lang === 'ar' ? 'إجمالي المواد المخزنة' : 'Total Ingredients'}</span>
-                <span className="text-lg font-black text-gray-900">{inventoryItems.length}</span>
-              </div>
-            </div>
-
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-xs flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-amber-50 text-amber-600">
-                <AlertTriangle className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] text-gray-400 block font-semibold uppercase">{lang === 'ar' ? 'مواد شارفت على النفاد' : 'Low Stock Alerts'}</span>
-                <span className="text-lg font-black text-gray-900">
-                  {inventoryItems.filter(item => item.stockQuantity <= item.reorderLevel && item.stockQuantity > 0).length}
-                </span>
-              </div>
-            </div>
-
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-xs flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-red-50 text-red-600">
-                <X className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] text-gray-400 block font-semibold uppercase">{lang === 'ar' ? 'مواد منتهية / نافدة' : 'Out of Stock'}</span>
-                <span className="text-lg font-black text-gray-900">
-                  {inventoryItems.filter(item => item.stockQuantity === 0).length}
-                </span>
-              </div>
-            </div>
-
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-xs flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-emerald-50 text-emerald-600">
-                <DollarSign className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] text-gray-400 block font-semibold uppercase">{lang === 'ar' ? 'قيمة الأصول المخزنية' : 'Net Asset Value'}</span>
-                <span className="text-lg font-black text-gray-900">
-                  {inventoryItems.reduce((sum, item) => sum + (item.stockQuantity * item.costPerUnit), 0).toFixed(2)} {tenant.currencyEn}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            {/* LEFT PANEL: INVENTORY ITEMS DIRECTORY (Col 2) */}
-            <div className="lg:col-span-2 bg-white rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.035)] overflow-hidden">
-              <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/40">
-                <h3 className="font-bold text-xs text-gray-900 flex items-center gap-1.5 uppercase">
-                  <Warehouse className="w-4 h-4 text-rose-600" />
-                  {lang === 'ar' ? 'دليل المخازن والمستودع المركزي' : 'Central Ingredients & Stock Ledger'}
-                </h3>
-                <button
-                  onClick={() => setShowInventoryModal(true)}
-                  className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg transition flex items-center gap-1"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  {lang === 'ar' ? 'إضافة مادة جديدة' : 'Add Custom Material'}
-                </button>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-                  <thead className="bg-gray-50 text-gray-400 font-bold border-b border-gray-100 uppercase text-[10px]">
-                    <tr>
-                      <th className="p-3">{lang === 'ar' ? 'المادة / الصنف' : 'Item Name'}</th>
-                      <th className="p-3">SKU</th>
-                      <th className="p-3">{lang === 'ar' ? 'الكمية الحالية' : 'Stock Qty'}</th>
-                      <th className="p-3">{lang === 'ar' ? 'التكلفة / الوحدة' : 'Unit Cost'}</th>
-                      <th className="p-3">{lang === 'ar' ? 'المورد الرئيسي' : 'Primary Supplier'}</th>
-                      <th className="p-3">{lang === 'ar' ? 'حالة المخزون' : 'Stock Status'}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {inventoryItems.map(item => {
-                      const isOutOfStock = item.stockQuantity === 0;
-                      const isLowStock = item.stockQuantity <= item.reorderLevel && item.stockQuantity > 0;
-
-                      return (
-                        <tr key={item.id} className="hover:bg-gray-50/50 transition">
-                          <td className="p-3 font-semibold text-gray-900">
-                            {lang === 'ar' ? item.nameAr : item.nameEn}
-                          </td>
-                          <td className="p-3 font-mono text-gray-400 text-[10px]">{item.sku}</td>
-                          <td className="p-3 font-bold text-gray-700">
-                            {item.stockQuantity} <span className="text-[10px] text-gray-400 font-medium">{lang === 'ar' ? item.unitAr : item.unitEn}</span>
-                          </td>
-                          <td className="p-3 font-mono text-rose-600 font-bold">{item.costPerUnit.toFixed(2)} {tenant.currencyEn}</td>
-                          <td className="p-3 text-gray-500 font-medium">{item.supplierName}</td>
-                          <td className="p-3">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              isOutOfStock ? 'bg-red-50 text-red-700 border border-red-100' :
-                              isLowStock ? 'bg-amber-50 text-amber-700 border border-amber-100 animate-pulse' :
-                              'bg-green-50 text-green-700 border border-green-100'
-                            }`}>
-                              {isOutOfStock ? (lang === 'ar' ? 'منتهي' : 'Out of Stock') :
-                               isLowStock ? (lang === 'ar' ? 'منخفض' : 'Low Stock') :
-                               (lang === 'ar' ? 'متوفر' : 'In Stock')}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* RIGHT PANEL: SUPPLY ORDER REFILL (Col 1) */}
-            <div className="bg-white rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.035)] p-5 space-y-4">
-              <h3 className="font-bold text-xs text-gray-900 flex items-center gap-1.5 uppercase border-b pb-2">
-                <Plus className="w-4 h-4 text-emerald-500" />
-                {lang === 'ar' ? 'أمر توريد مخزني سريع' : 'Quick Stock Supply Inflow'}
-              </h3>
-              <p className="text-[11px] text-gray-400">
-                {lang === 'ar' ? 'اختر المادة المخزنية لتسجيل شحنة توريد جديدة وزيادة مستويات المخزون فورا.' : 'Select ingredient item to register incoming supply batch and instantly increment quantities.'}
-              </p>
-
-              <form 
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const form = e.currentTarget;
-                  const itemSelect = form.elements.namedItem('refillItem') as HTMLSelectElement;
-                  const qtyInput = form.elements.namedItem('refillQty') as HTMLInputElement;
-                  
-                  const targetId = itemSelect.value;
-                  const qtyToAdd = parseInt(qtyInput.value) || 0;
-
-                  if (!targetId || qtyToAdd <= 0) return;
-
-                  setInventoryItems(prev => prev.map(item => {
-                    if (item.id === targetId) {
-                      const newQty = item.stockQuantity + qtyToAdd;
-                      const newStatus = newQty === 0 ? 'out_of_stock' : newQty <= item.reorderLevel ? 'low_stock' : 'in_stock';
-                      addAuditLog('STOCK_REFILL', 'Inventory', item.id, `Supplied +${qtyToAdd} ${item.unitEn} of ${item.nameEn}. New Stock: ${newQty}`);
-                      return { ...item, stockQuantity: newQty, status: newStatus };
-                    }
-                    return item;
-                  }));
-
-                  // Also check if there's an app product with matching stock to sync
-                  const targetItem = inventoryItems.find(i => i.id === targetId);
-                  if (targetItem) {
-                    setProducts(prevProds => prevProds.map(p => {
-                      if (p.nameEn.toLowerCase() === targetItem.nameEn.toLowerCase() || p.sku === targetItem.sku) {
-                        return { ...p, stockQuantity: p.stockQuantity + qtyToAdd };
-                      }
-                      return p;
-                    }));
-                  }
-
-                  alert(lang === 'ar' ? 'تم توريد الشحنة وتحديث المستويات بنجاح!' : 'Supply receipt logged and stock updated!');
-                  form.reset();
-                }}
-                className="space-y-3.5 text-xs text-left"
-                dir={lang === 'ar' ? 'rtl' : 'ltr'}
-              >
-                <div>
-                  <label className="block font-bold text-gray-500 mb-1">{lang === 'ar' ? 'المادة المستهدفة' : 'Select Target Item'}</label>
-                  <select 
-                    name="refillItem" 
-                    required
-                    className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:border-rose-600 font-semibold"
-                  >
-                    {inventoryItems.map(i => (
-                      <option key={i.id} value={i.id}>{lang === 'ar' ? i.nameAr : i.nameEn} ({i.sku})</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-gray-500 mb-1">{lang === 'ar' ? 'كمية التوريد الجديدة' : 'Add Quantity'}</label>
-                  <input 
-                    type="number" 
-                    name="refillQty" 
-                    required 
-                    min="1" 
-                    defaultValue="50"
-                    className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:border-rose-600 font-bold"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm transition uppercase"
-                >
-                  {lang === 'ar' ? 'تسجيل شحنة التوريد' : 'Submit Supply Batch'}
-                </button>
-              </form>
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* HR MANAGEMENT SYSTEM */}
-      {activeTab === 'hr' && (
-        <div className="space-y-6">
-          {/* HR Statistics */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-xs flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-rose-50 text-rose-600">
-                <Users className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] text-gray-400 block font-semibold uppercase">{lang === 'ar' ? 'طاقم العمل المسجل' : 'Registered Roster'}</span>
-                <span className="text-lg font-black text-gray-900">{employees.length} {lang === 'ar' ? 'موظفين' : 'Staff'}</span>
-              </div>
-            </div>
-
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-xs flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-emerald-50 text-emerald-600">
-                <Check className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] text-gray-400 block font-semibold uppercase">{lang === 'ar' ? 'الموظفين على رأس العمل' : 'Active On Duty'}</span>
-                <span className="text-lg font-black text-gray-900">{employees.filter(e => e.status === 'active').length}</span>
-              </div>
-            </div>
-
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-xs flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-blue-50 text-blue-600">
-                <Clock className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] text-gray-400 block font-semibold uppercase">{lang === 'ar' ? 'أقسام المناوبات' : 'Active Roster Shifts'}</span>
-                <span className="text-lg font-black text-gray-900">3 {lang === 'ar' ? 'ورديات' : 'Shifts'}</span>
-              </div>
-            </div>
-
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-xs flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-purple-50 text-purple-600">
-                <DollarSign className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] text-gray-400 block font-semibold uppercase">{lang === 'ar' ? 'إجمالي الرواتب الشهرية' : 'Monthly Payroll Commitment'}</span>
-                <span className="text-lg font-black text-gray-900">
-                  {employees.reduce((sum, e) => sum + e.salary, 0).toLocaleString()} {tenant.currencyEn}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.035)] overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gray-50/40">
-              <div>
-                <h3 className="font-bold text-xs text-gray-900 flex items-center gap-1.5 uppercase">
-                  <Users className="w-4 h-4 text-rose-600" />
-                  {lang === 'ar' ? 'شؤون الموظفين وجدولة المناوبات' : 'Employee Directory & Roster Grid'}
-                </h3>
-                <p className="text-[10px] text-gray-400 mt-1">
-                  {lang === 'ar' ? 'تحكم في الموظفين، الرواتب، والمناوبات اليومية.' : 'Control active branch workforce contracts, salary lists, and schedules.'}
-                </p>
-              </div>
-
-              <div className="flex gap-2">
-                {/* Simulated Payroll Button */}
-                <button
-                  onClick={() => {
-                    const totalPaid = employees.reduce((sum, e) => sum + e.salary, 0);
-                    addAuditLog('PAYROLL_DISBURSEMENT', 'HR_Finance', 'PAY-' + Date.now().toString().slice(-4), 
-                      `Issued monthly payroll of ${totalPaid.toLocaleString()} ${tenant.currencyEn} to ${employees.length} active employee profiles`
-                    );
-                    alert(lang === 'ar' 
-                      ? `تم صرف رواتب هذا الشهر بقيمة ${totalPaid.toLocaleString()} ريال بنجاح!` 
-                      : `Successfully disbursed monthly payroll of ${totalPaid.toLocaleString()} ${tenant.currencyEn} to all staff ledger!`);
-                  }}
-                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition flex items-center gap-1"
-                >
-                  <DollarSign className="w-3.5 h-3.5" />
-                  {lang === 'ar' ? 'صرف الرواتب الشهرية' : 'Disburse Payroll'}
-                </button>
-
-                <button
-                  onClick={startHireEmployee}
-                  className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg transition flex items-center gap-1"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  {lang === 'ar' ? 'إضافة موظف جديد' : 'Hire Employee'}
-                </button>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-                <thead className="bg-gray-50 text-gray-450 font-bold border-b border-gray-100 uppercase text-[10px]">
-                  <tr>
-                    <th className="p-3">{lang === 'ar' ? 'اسم الموظف' : 'Employee Name'}</th>
-                    <th className="p-3">{lang === 'ar' ? 'الدور الوظيفي' : 'Role'}</th>
-                    <th className="p-3">{lang === 'ar' ? 'المناوبة' : 'Duty Shift'}</th>
-                    <th className="p-3">{lang === 'ar' ? 'رمز الـ PIN للدخول' : 'Access PIN'}</th>
-                    <th className="p-3">{lang === 'ar' ? 'صلاحية النظام' : 'System Permission'}</th>
-                    <th className="p-3">{lang === 'ar' ? 'رقم الهاتف' : 'Contact Phone'}</th>
-                    <th className="p-3">{lang === 'ar' ? 'نوع العقد' : 'Contract'}</th>
-                    <th className="p-3">{lang === 'ar' ? 'الراتب الشهري' : 'Base Salary'}</th>
-                    <th className="p-3">{lang === 'ar' ? 'حالة الموظف' : 'Status'}</th>
-                    <th className="p-3 text-center">{lang === 'ar' ? 'الإجراءات' : 'Actions'}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {employees.map(emp => (
-                    <tr key={emp.id} className="hover:bg-gray-50/50 transition">
-                      <td className="p-3 font-semibold text-gray-900">{lang === 'ar' ? emp.nameAr : emp.nameEn}</td>
-                      <td className="p-3 font-medium text-gray-650">{lang === 'ar' ? emp.roleAr : emp.roleEn}</td>
-                      <td className="p-3">
-                        <span className="bg-slate-50 text-slate-700 font-bold text-[10px] px-2 py-0.5 rounded border border-slate-100">
-                          {lang === 'ar' ? emp.shiftAr : emp.shiftEn}
-                        </span>
-                      </td>
-                      <td className="p-3 font-mono font-bold text-rose-600">{emp.pinCode || '1234'}</td>
-                      <td className="p-3">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold ${
-                          emp.systemRole === 'manager' ? 'bg-purple-100 text-purple-700 border border-purple-200' :
-                          emp.systemRole === 'kitchen' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
-                          'bg-rose-100 text-rose-700 border border-rose-200'
-                        }`}>
-                          {emp.systemRole === 'manager' ? (lang === 'ar' ? 'مدير المطعم' : 'Manager') :
-                           emp.systemRole === 'kitchen' ? (lang === 'ar' ? 'مدير المطبخ / طاهي' : 'Kitchen Chef') :
-                           (lang === 'ar' ? 'كاشير (POS)' : 'Cashier')}
-                        </span>
-                      </td>
-                      <td className="p-3 font-mono text-gray-400">{emp.phone}</td>
-                      <td className="p-3 font-bold">
-                        {emp.contractType === 'full_time' 
-                          ? (lang === 'ar' ? 'دوام كامل 🟢' : 'Full-time 🟢') 
-                          : (lang === 'ar' ? 'دوام جزئي 🔵' : 'Part-time 🔵')}
-                      </td>
-                      <td className="p-3 font-mono font-bold text-rose-600">{emp.salary.toLocaleString()} {tenant.currencyEn}</td>
-                      <td className="p-3">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          emp.status === 'active' ? 'bg-green-50 text-green-700 border border-green-100' :
-                          emp.status === 'on_leave' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
-                          'bg-red-50 text-red-700 border border-red-100'
-                        }`}>
-                          {emp.status === 'active' ? (lang === 'ar' ? 'نشط' : 'Active') :
-                           emp.status === 'on_leave' ? (lang === 'ar' ? 'إجازة' : 'On Leave') :
-                           (lang === 'ar' ? 'موقوف' : 'Suspended')}
-                        </span>
-                      </td>
-                      <td className="p-3 text-center flex items-center justify-center gap-1.5">
-                        <button
-                          onClick={() => startEditEmployee(emp)}
-                          className="p-1 hover:bg-rose-50 text-rose-600 rounded transition"
-                          title={lang === 'ar' ? 'تعديل البيانات / الرمز السري' : 'Edit Employee / PIN'}
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </button>
-                        {emp.id !== 'emp-admin-1' && emp.id !== 'emp-admin-2' && (
-                          <button
-                            onClick={() => {
-                              if (confirm(lang === 'ar' ? `هل أنت متأكد من رغبتك في إنهاء خدمات الموظف ${emp.nameAr || emp.nameEn}؟` : `Are you sure you want to terminate/delete employee ${emp.nameEn}?`)) {
-                                setEmployees(prev => prev.filter(e => e.id !== emp.id));
-                                addAuditLog('TERMINATE_EMPLOYEE', 'HR_Workforce', emp.id, `Terminated employee profile for ${emp.nameEn}`);
-                              }
-                            }}
-                            className="p-1 hover:bg-red-50 text-red-650 rounded transition"
-                            title={lang === 'ar' ? 'إنهاء الخدمات / حذف' : 'Terminate / Delete'}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* NEW MATERIAL INVENTORY DIALOG MODAL */}
-      {showInventoryModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs font-sans">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-2xl w-full max-w-md overflow-hidden text-xs text-gray-700">
-            <div className="flex items-center justify-between border-b border-gray-100 p-5 bg-gray-50/50">
-              <h3 className="text-sm font-bold text-gray-900">
-                {lang === 'ar' ? 'تسجيل مادة خام جديدة' : 'Add New Raw Stock Material'}
-              </h3>
-              <button 
-                type="button"
-                onClick={() => setShowInventoryModal(false)}
-                className="p-1 text-gray-400 hover:bg-gray-100 rounded-lg"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form 
-              onSubmit={(e) => {
-                e.preventDefault();
-                const newId = `inv-${Date.now()}`;
-                const parsedQty = parseFloat(invStock) || 0;
-                const parsedCost = parseFloat(invCost) || 0;
-                const parsedReorder = parseFloat(invReorder) || 10;
-                const newStatus = parsedQty === 0 ? 'out_of_stock' : parsedQty <= parsedReorder ? 'low_stock' : 'in_stock';
-
-                const newItem = {
-                  id: newId,
-                  nameEn: invNameEn,
-                  nameAr: invNameAr,
-                  sku: invSku || `SKU-${invNameEn.toUpperCase().slice(0,4)}-${Date.now().toString().slice(-3)}`,
-                  stockQuantity: parsedQty,
-                  unitEn: invUnitEn,
-                  unitAr: invUnitAr,
-                  costPerUnit: parsedCost,
-                  supplierName: invSupplier || 'Local Farm Market',
-                  status: newStatus as 'in_stock' | 'low_stock' | 'out_of_stock',
-                  reorderLevel: parsedReorder
-                };
-
-                setInventoryItems(prev => [...prev, newItem]);
-                addAuditLog('CREATE_INVENTORY_ITEM', 'Inventory', newId, `Registered raw material: ${invNameEn} with initial stock ${parsedQty}`);
-                setShowInventoryModal(false);
-
-                // Reset
-                setInvNameEn('');
-                setInvNameAr('');
-                setInvSku('');
-                setInvStock('100');
-                setInvSupplier('');
-                alert(lang === 'ar' ? 'تم تسجيل الصنف المخزني الجديد!' : 'Material added to inventory ledger!');
-              }}
-              className="p-5 space-y-4 text-left text-xs"
-              dir={lang === 'ar' ? 'rtl' : 'ltr'}
-            >
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'اسم الصنف بالإنجليزية *' : 'Name (English) *'}</label>
-                  <input type="text" required value={invNameEn} onChange={(e) => setInvNameEn(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" />
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'الاسم بالعربية *' : 'Name (Arabic) *'}</label>
-                  <input type="text" required value={invNameAr} onChange={(e) => setInvNameAr(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">SKU Code</label>
-                  <input type="text" value={invSku} onChange={(e) => setInvSku(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" placeholder="e.g. SKU-CHEESE" />
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'الكمية الابتدائية' : 'Initial Stock Qty'}</label>
-                  <input type="number" required value={invStock} onChange={(e) => setInvStock(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'الوحدة (إنجليزية)' : 'Unit En'}</label>
-                  <input type="text" value={invUnitEn} onChange={(e) => setInvUnitEn(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" />
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'الوحدة (عربية)' : 'Unit Ar'}</label>
-                  <input type="text" value={invUnitAr} onChange={(e) => setInvUnitAr(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'تكلفة الشراء / الوحدة' : 'Purchase Cost/Unit'}</label>
-                  <input type="number" step="0.01" value={invCost} onChange={(e) => setInvCost(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" />
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'حد إعادة الطلب' : 'Reorder Alert Threshold'}</label>
-                  <input type="number" value={invReorder} onChange={(e) => setInvReorder(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-bold text-gray-500">{lang === 'ar' ? 'اسم المورد الرئيسي' : 'Supplier Name'}</label>
-                <input type="text" value={invSupplier} onChange={(e) => setInvSupplier(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" />
-              </div>
-
-              <div className="flex gap-2 pt-2 bg-gray-50 p-4 -mx-5 -mb-5 mt-4">
-                <button type="button" onClick={() => setShowInventoryModal(false)} className="w-1/2 py-2 border rounded-lg hover:bg-gray-100 transition">
-                  {lang === 'ar' ? 'إلغاء' : 'Cancel'}
-                </button>
-                <button type="submit" className="w-1/2 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg transition">
-                  {lang === 'ar' ? 'حفظ وتثبيت' : 'Register Material'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* NEW EMPLOYEE HR DIALOG MODAL */}
-      {showEmployeeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs font-sans">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-2xl w-full max-w-md overflow-hidden text-xs text-gray-700">
-            <div className="flex items-center justify-between border-b border-gray-100 p-5 bg-gray-50/50">
-              <h3 className="text-sm font-bold text-gray-900">
-                {editingEmployee 
-                  ? (lang === 'ar' ? 'تعديل بيانات الموظف والرمز السري' : 'Edit Employee Details & PIN') 
-                  : (lang === 'ar' ? 'توظيف موظف جديد' : 'Hire & Register Employee')}
-              </h3>
-              <button 
-                type="button"
-                onClick={() => {
-                  setShowEmployeeModal(false);
-                  setEditingEmployee(null);
-                }}
-                className="p-1 text-gray-400 hover:bg-gray-100 rounded-lg"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form 
-              onSubmit={(e) => {
-                e.preventDefault();
-                const parsedSalary = parseFloat(empSalary) || 3000;
-
-                if (editingEmployee) {
-                  const updatedEmp = {
-                    ...editingEmployee,
-                    nameEn: empNameEn,
-                    nameAr: empNameAr,
-                    roleEn: empRoleEn,
-                    roleAr: empRoleAr,
-                    contractType: empContract,
-                    salary: parsedSalary,
-                    shiftEn: empShiftEn,
-                    shiftAr: empShiftAr,
-                    phone: empPhone || '+96650000000',
-                    status: empStatus,
-                    pinCode: empPinCode || '1234',
-                    systemRole: empSystemRole
-                  };
-
-                  setEmployees(prev => prev.map(emp => emp.id === editingEmployee.id ? updatedEmp : emp));
-                  addAuditLog('EDIT_EMPLOYEE', 'HR_Workforce', editingEmployee.id, `Updated employee profile for ${empNameEn} (PIN changed/updated)`);
-                } else {
-                  const newId = `emp-${Date.now()}`;
-                  const newEmp = {
-                    id: newId,
-                    nameEn: empNameEn,
-                    nameAr: empNameAr,
-                    roleEn: empRoleEn,
-                    roleAr: empRoleAr,
-                    contractType: empContract,
-                    salary: parsedSalary,
-                    shiftEn: empShiftEn,
-                    shiftAr: empShiftAr,
-                    phone: empPhone || '+96650000000',
-                    status: empStatus,
-                    pinCode: empPinCode || '1234',
-                    systemRole: empSystemRole
-                  };
-
-                  setEmployees(prev => [...prev, newEmp]);
-                  addAuditLog('HIRE_EMPLOYEE', 'HR_Workforce', newId, `Registered hire profile for ${empNameEn} with monthly salary ${parsedSalary} and login PIN ${empPinCode || '1234'}`);
-                }
-
-                setShowEmployeeModal(false);
-                setEditingEmployee(null);
-
-                // Reset
-                setEmpNameEn('');
-                setEmpNameAr('');
-                setEmpRoleEn('');
-                setEmpRoleAr('');
-                setEmpPhone('');
-                setEmpSalary('4500');
-                setEmpPinCode('');
-                setEmpSystemRole('cashier');
-                alert(lang === 'ar' ? 'تم حفظ بيانات الموظف بنجاح!' : 'Employee information saved successfully!');
-              }}
-              className="p-5 space-y-4 text-left text-xs"
-              dir={lang === 'ar' ? 'rtl' : 'ltr'}
-            >
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'الاسم بالإنجليزية *' : 'Name (English) *'}</label>
-                  <input type="text" required value={empNameEn} onChange={(e) => setEmpNameEn(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" />
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'الاسم بالعربية *' : 'Name (Arabic) *'}</label>
-                  <input type="text" required value={empNameAr} onChange={(e) => setEmpNameAr(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'الدور بالإنجليزية *' : 'Role (English) *'}</label>
-                  <input type="text" required value={empRoleEn} onChange={(e) => setEmpRoleEn(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" placeholder="e.g. Line Chef" />
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'الدور بالعربية *' : 'Role (Arabic) *'}</label>
-                  <input type="text" required value={empRoleAr} onChange={(e) => setEmpRoleAr(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" placeholder="مثل: طاهي خط" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'نوع العقد' : 'Contract Type'}</label>
-                  <select value={empContract} onChange={(e) => setEmpContract(e.target.value as 'full_time' | 'part_time')} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none">
-                    <option value="full_time">{lang === 'ar' ? 'دوام كامل' : 'Full-time'}</option>
-                    <option value="part_time">{lang === 'ar' ? 'دوام جزئي' : 'Part-time'}</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'الراتب الشهري الأساسي' : 'Base Salary'}</label>
-                  <input type="number" required value={empSalary} onChange={(e) => setEmpSalary(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'المناوبة (إنجليزية)' : 'Shift (English)'}</label>
-                  <input type="text" value={empShiftEn} onChange={(e) => setEmpShiftEn(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" />
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'المناوبة (عربية)' : 'Shift (Arabic)'}</label>
-                  <input type="text" value={empShiftAr} onChange={(e) => setEmpShiftAr(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'رمز الـ PIN للدخول (4 أرقام) *' : 'Login PIN Code (4 Digits) *'}</label>
-                  <input 
-                    type="text" 
-                    maxLength={4}
-                    value={empPinCode} 
-                    onChange={(e) => setEmpPinCode(e.target.value.replace(/[^0-9]/g, ''))} 
-                    placeholder="e.g. 1234"
-                    className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none font-mono font-bold text-center text-xs text-gray-900" 
-                    required
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'رقم الاتصال' : 'Phone Number'}</label>
-                  <input type="text" value={empPhone} onChange={(e) => setEmpPhone(e.target.value)} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'حالة الموظف' : 'Status'}</label>
-                  <select value={empStatus} onChange={(e) => setEmpStatus(e.target.value as 'active' | 'on_leave' | 'suspended')} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none">
-                    <option value="active">{lang === 'ar' ? 'نشط على رأس العمل' : 'Active'}</option>
-                    <option value="on_leave">{lang === 'ar' ? 'في إجازة مأذونة' : 'On Leave'}</option>
-                    <option value="suspended">{lang === 'ar' ? 'موقوف إدارياً' : 'Suspended'}</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">{lang === 'ar' ? 'صلاحية النظام *' : 'System Access *'}</label>
-                  <select value={empSystemRole} onChange={(e) => setEmpSystemRole(e.target.value as 'manager' | 'cashier' | 'kitchen')} className="w-full px-3 py-1.5 bg-gray-50 border rounded-lg focus:outline-none text-rose-600 font-bold">
-                    <option value="cashier">{lang === 'ar' ? 'كاشير / صراف (POS)' : 'Cashier (POS)'}</option>
-                    <option value="manager">{lang === 'ar' ? 'مدير المطعم / إداري' : 'Restaurant Manager'}</option>
-                    <option value="kitchen">{lang === 'ar' ? 'طاقم المطبخ / طاهي' : 'Kitchen Staff / Chef'}</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-2 bg-gray-50 p-4 -mx-5 -mb-5 mt-4">
-                <button 
-                  type="button" 
-                  onClick={() => {
-                    setShowEmployeeModal(false);
-                    setEditingEmployee(null);
-                  }} 
-                  className="w-1/2 py-2 border rounded-lg hover:bg-gray-100 transition"
-                >
-                  {lang === 'ar' ? 'إلغاء' : 'Cancel'}
-                </button>
-                <button type="submit" className="w-1/2 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg transition">
-                  {editingEmployee 
-                    ? (lang === 'ar' ? 'حفظ التعديلات' : 'Save Changes') 
-                    : (lang === 'ar' ? 'توظيف وتسجيل' : 'Hire Employee')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'kitchen_analytics' && (
-        <div className="space-y-6 text-right" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-          
-          {/* Section Heading */}
-          <div className="bg-slate-900 text-white p-6 rounded-2xl border border-slate-800 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <ChefHat className="w-6 h-6 text-rose-500" />
-              <div>
-                <h2 className="text-sm font-bold">{lang === 'ar' ? 'تحليلات المطبخ وتوقعات نفاد المكونات' : 'Kitchen Monitor & Depletion Forecast'}</h2>
-                <p className="text-[10px] text-slate-400">{lang === 'ar' ? 'تحليل مباشر لسرعة التحضير وتوقعات نفاد المكونات في المستودعات' : 'Live tracking of prep velocity and ingredients stock exhaustion times'}</p>
-              </div>
-            </div>
-            <span className="text-[9px] bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded font-mono">FORECAST ENGINE ACTIVE</span>
-          </div>
-
-          {/* Kitchen KPIs Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white p-4 rounded-xl border border-gray-100 dark:bg-gray-900 dark:border-gray-800 shadow-xs">
-              <span className="text-[10px] text-gray-400 uppercase block">{lang === 'ar' ? 'إجمالي الطلبات' : 'Total Orders'}</span>
-              <span className="text-lg font-black text-gray-900 dark:text-white">{orders.filter(o => o.tenantId === tenant.id).length}</span>
-            </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-100 dark:bg-gray-900 dark:border-gray-800 shadow-xs">
-              <span className="text-[10px] text-gray-400 uppercase block">{lang === 'ar' ? 'طلبات نشطة بالمطبخ' : 'Active KDS Queue'}</span>
-              <span className="text-lg font-black text-amber-600">{orders.filter(o => o.tenantId === tenant.id && (o.status === 'pending' || o.status === 'preparing' || o.status === 'ready')).length}</span>
-            </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-100 dark:bg-gray-900 dark:border-gray-800 shadow-xs">
-              <span className="text-[10px] text-gray-400 uppercase block">{lang === 'ar' ? 'طلبات تم تسليمها' : 'Delivered Today'}</span>
-              <span className="text-lg font-black text-emerald-600">{orders.filter(o => o.tenantId === tenant.id && o.status === 'completed').length}</span>
-            </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-100 dark:bg-gray-900 dark:border-gray-800 shadow-xs">
-              <span className="text-[10px] text-gray-400 uppercase block">{lang === 'ar' ? 'سرعة التحضير التقريبية' : 'Est. Prep Velocity'}</span>
-              <span className="text-lg font-black text-rose-500">9.5 {lang === 'ar' ? 'دقيقة' : 'mins'}</span>
-            </div>
-          </div>
-
-          {/* Depletion Forecast & Ingredient Inventory */}
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.035)] p-5 space-y-4">
-            <div className="text-right">
-              <h3 className="font-extrabold text-xs text-gray-900 dark:text-white uppercase flex items-center gap-1.5 justify-start">
-                <AlertTriangle className="w-4 h-4 text-amber-500" />
-                {lang === 'ar' ? 'جدول التنبؤ بنفاد مكونات المطبخ والمخازن' : 'Ingredients Depletion Forecast Engine'}
-              </h3>
-              <p className="text-[10px] text-gray-400 mt-1">{lang === 'ar' ? 'يعتمد هذا التنبؤ على الكمية المتبقية مقسمة على متوسط الاستهلاك لكل طلب.' : 'Exhaustion estimate calculated by dividing current stock by avg consumption per order.'}</p>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-[11px] border-collapse text-right" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-                <thead>
-                  <tr className="border-b border-gray-100 text-gray-400 font-bold text-right">
-                    <th className="py-2.5 px-3 text-right">{lang === 'ar' ? 'المكون الخام' : 'Raw Ingredient'}</th>
-                    <th className="py-2.5 px-3 text-right font-mono">SKU</th>
-                    <th className="py-2.5 px-3 text-right">{lang === 'ar' ? 'المخزون الحالي' : 'Current Stock'}</th>
-                    <th className="py-2.5 px-3 text-right">{lang === 'ar' ? 'الاستهلاك الإجمالي' : 'Total Consumed'}</th>
-                    <th className="py-2.5 px-3 text-right">{lang === 'ar' ? 'متوسط الطلب الواحد' : 'Avg / Order'}</th>
-                    <th className="py-2.5 px-3 text-right">{lang === 'ar' ? 'متبقي كم طلب؟' : 'Orders Remaining'}</th>
-                    <th className="py-2.5 px-3 text-right">{lang === 'ar' ? 'توقعات النفاد' : 'Exhaustion Forecast'}</th>
-                    <th className="py-2.5 px-3 text-center">{lang === 'ar' ? 'إجراء' : 'Quick Actions'}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ingredients.map(ing => {
-                    const totalTenantOrders = orders.filter(o => o.tenantId === tenant.id).length || 1;
-                    const totalConsumed = ing.totalConsumedCount || 0;
-                    const avgPerOrder = totalConsumed / totalTenantOrders;
-                    const ordersRemaining = avgPerOrder > 0 ? Math.floor(ing.stockQuantity / avgPerOrder) : Infinity;
-
-                    // Days remaining assuming 25 orders per day
-                    const daysRemaining = ordersRemaining !== Infinity ? parseFloat((ordersRemaining / 25).toFixed(1)) : Infinity;
-
-                    let statusBadge = '';
-                    let forecastText = '';
-                    if (ing.stockQuantity === 0) {
-                      statusBadge = lang === 'ar' ? 'نفد 🔴' : 'Out of Stock 🔴';
-                      forecastText = lang === 'ar' ? 'نفد بالفعل!' : 'Exhausted!';
-                    } else if (ordersRemaining === Infinity || totalConsumed === 0) {
-                      statusBadge = lang === 'ar' ? 'آمن 🟢' : 'Safe 🟢';
-                      forecastText = lang === 'ar' ? 'كافٍ لفترة طويلة' : 'Sufficient';
-                    } else if (ordersRemaining <= 50 || ing.stockQuantity <= ing.reorderLevel) {
-                      statusBadge = lang === 'ar' ? 'حرج ⚠️' : 'Critical ⚠️';
-                      forecastText = lang === 'ar' 
-                        ? `خلال ${ordersRemaining} طلبات (~${daysRemaining} يوم)`
-                        : `In ${ordersRemaining} orders (~${daysRemaining} days)`;
-                    } else {
-                      statusBadge = lang === 'ar' ? 'آمن 🟢' : 'Safe 🟢';
-                      forecastText = lang === 'ar'
-                        ? `خلال ${ordersRemaining} طلبات (~${daysRemaining} يوم)`
-                        : `In ${ordersRemaining} orders (~${daysRemaining} days)`;
-                    }
-
-                    return (
-                      <tr key={ing.id} className="border-b border-gray-50 hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
-                        <td className="py-3 px-3 font-bold text-gray-900 dark:text-white text-right">
-                          {lang === 'ar' ? ing.nameAr : ing.nameEn}
-                        </td>
-                        <td className="py-3 px-3 text-gray-400 font-mono text-right">{ing.sku}</td>
-                        <td className="py-3 px-3 text-right">
-                          <span className="font-bold">{ing.stockQuantity}</span> {lang === 'ar' ? ing.unitAr : ing.unitEn}
-                        </td>
-                        <td className="py-3 px-3 text-gray-550 text-right">
-                          {totalConsumed.toFixed(2)} {lang === 'ar' ? ing.unitAr : ing.unitEn}
-                        </td>
-                        <td className="py-3 px-3 text-gray-500 font-mono text-right">
-                          {avgPerOrder.toFixed(3)}
-                        </td>
-                        <td className="py-3 px-3 text-right">
-                          <span className={`font-bold ${ordersRemaining <= 50 ? 'text-rose-600 font-extrabold' : 'text-gray-700 dark:text-gray-300'}`}>
-                            {ordersRemaining === Infinity ? '∞' : ordersRemaining}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 text-right">
-                          <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
-                            ing.stockQuantity === 0 ? 'bg-red-55/20 text-red-650' : (ordersRemaining <= 50 ? 'bg-amber-50/50 text-amber-600' : 'bg-green-50/50 text-green-600')
-                          }`}>
-                            {forecastText} ({statusBadge})
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 text-center">
-                          <button
-                            onClick={() => {
-                              setIngredients(prev => prev.map(i => {
-                                if (i.id === ing.id) {
-                                  const newQty = i.stockQuantity + 100;
-                                  return { ...i, stockQuantity: newQty, status: 'in_stock' };
-                                }
-                                return i;
-                              }));
-                              addAuditLog('SUPPLY_ORDER', 'Ingredient', ing.id, `Restocked 100 units of ${ing.nameEn} via depletion control panel`);
-                              alert(lang === 'ar' ? `تم توريد 100 وحدة للمكون: ${ing.nameAr}` : `Restocked 100 units for: ${ing.nameEn}`);
-                            }}
-                            className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded text-[10px] font-bold transition"
-                          >
-                            {lang === 'ar' ? 'طلب توريد سريع' : 'Restock +100'}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Recipes Matrix list */}
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.035)] p-5 space-y-4">
-            <div className="text-right">
-              <h3 className="font-extrabold text-xs text-gray-900 dark:text-white uppercase flex items-center gap-1.5 justify-start">
-                <ChefHat className="w-4 h-4 text-rose-500" />
-                {lang === 'ar' ? 'مصفوفة وصفات المطبخ والمواد الخام المخصصة للمنتجات' : 'Product Recipe to Raw Material Ingredient Links'}
-              </h3>
-              <p className="text-[10px] text-gray-400 mt-1">{lang === 'ar' ? 'تظهر هذه القائمة المواد الخام التي سيتم سحبها تلقائياً عند بيع كل صنف' : 'View the raw ingredients decremented automatically upon catalog checkout.'}</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
-              {products.filter(p => p.tenantId === tenant.id).map(prod => {
-                const prodRecipes = recipes.filter(r => r.productId === prod.id);
-                return (
-                  <div key={prod.id} className="p-4 bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-850 rounded-xl space-y-2">
-                    <div className="flex items-center gap-3">
-                      <img src={prod.imageUrl} alt={prod.nameEn} className="w-10 h-10 rounded-lg object-cover" />
-                      <div className="text-right">
-                        <h4 className="font-bold text-xs text-gray-900 dark:text-white">{lang === 'ar' ? prod.nameAr : prod.nameEn}</h4>
-                        <span className="text-[9px] text-gray-400 block font-mono">SKU: {prod.sku}</span>
-                      </div>
-                    </div>
-
-                    <div className="border-t border-gray-100/10 pt-2 space-y-1">
-                      <span className="text-[9px] font-bold text-gray-400 block">{lang === 'ar' ? 'المكونات المطلوبة للتصنيع:' : 'Recipe Ingredients:'}</span>
-                      {prodRecipes.length === 0 ? (
-                        <span className="text-[9px] text-gray-400 italic block">{lang === 'ar' ? 'لا توجد وصفة مدخلة (لا يستهلك مواد خام)' : 'No raw recipe items mapped.'}</span>
-                      ) : (
-                        prodRecipes.map((r, idx) => {
-                          const ing = ingredients.find(i => i.id === r.ingredientId);
-                          return (
-                            <div key={idx} className="flex justify-between text-[10px] text-gray-700 dark:text-gray-300">
-                              <span>• {ing ? (lang === 'ar' ? ing.nameAr : ing.nameEn) : 'Unknown Ingredient'}</span>
-                              <span className="font-bold font-mono">{r.quantityRequired} {ing ? (lang === 'ar' ? ing.unitAr : ing.unitEn) : ''}</span>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-        </div>
-      )}
-
       {activeTab === 'settings' && (
         <div className="bg-white dark:bg-gray-905 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.035)] p-6 shadow-xs space-y-6 text-right" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
           <div className="border-b border-gray-100/10 pb-4">
@@ -2495,7 +1326,7 @@ export default function AdminDashboard({
                 onClick={() => {
                   if (setTenants) {
                     setTenants(prev => prev.map(t => t.id === tenant.id ? { ...t, enableDelivery: t.enableDelivery === false ? true : false } : t));
-                    addAuditLog('TOGGLE_DELIVERY_SERVICE', 'Tenant', tenant.id, `Toggled delivery service to ${tenant.enableDelivery === false ? 'ENABLED' : 'DISABLED'}`);
+                    addAuditLog?.('TOGGLE_DELIVERY_SERVICE', 'Tenant', tenant.id, `Toggled delivery service to ${tenant.enableDelivery === false ? 'ENABLED' : 'DISABLED'}`);
                   }
                 }}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer ${
@@ -2574,7 +1405,7 @@ export default function AdminDashboard({
                   <div className="flex items-center gap-3">
                     <input
                       type="color"
-                      value={tenant.primaryColor || '#e11d48'}
+                      value={tenant.primaryColor || '#c9a456'}
                       onChange={(e) => {
                         if (setTenants) {
                           setTenants(prev => prev.map(t => t.id === tenant.id ? { ...t, primaryColor: e.target.value } : t));
@@ -2584,7 +1415,7 @@ export default function AdminDashboard({
                     />
                     <input
                       type="text"
-                      value={tenant.primaryColor || '#e11d48'}
+                      value={tenant.primaryColor || '#c9a456'}
                       onChange={(e) => {
                         if (setTenants) {
                           setTenants(prev => prev.map(t => t.id === tenant.id ? { ...t, primaryColor: e.target.value } : t));
@@ -2603,7 +1434,7 @@ export default function AdminDashboard({
                   <div className="flex items-center gap-3">
                     <input
                       type="color"
-                      value={tenant.secondaryColor || '#fb7185'}
+                      value={tenant.secondaryColor || '#dfbe75'}
                       onChange={(e) => {
                         if (setTenants) {
                           setTenants(prev => prev.map(t => t.id === tenant.id ? { ...t, secondaryColor: e.target.value } : t));
@@ -2613,7 +1444,7 @@ export default function AdminDashboard({
                     />
                     <input
                       type="text"
-                      value={tenant.secondaryColor || '#fb7185'}
+                      value={tenant.secondaryColor || '#dfbe75'}
                       onChange={(e) => {
                         if (setTenants) {
                           setTenants(prev => prev.map(t => t.id === tenant.id ? { ...t, secondaryColor: e.target.value } : t));
@@ -3100,7 +1931,7 @@ export default function AdminDashboard({
                           setTenants(prev => prev.map(t => t.id === tenant.id ? { ...t, handle: e.target.value } : t));
                         }
                       }}
-                      placeholder="@meatport.restaurant"
+                      placeholder="@restaurant"
                       className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-left font-mono"
                       dir="ltr"
                     />
@@ -3321,7 +2152,7 @@ export default function AdminDashboard({
                       type="text" 
                       value={prodImageUrl}
                       onChange={(e) => setProdImageUrl(e.target.value)}
-                      placeholder="/tenants/meatport/assets/products/..."
+                      placeholder="https://... أو /uploads/products/..."
                       className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-rose-600 transition text-xs"
                     />
                     <button
