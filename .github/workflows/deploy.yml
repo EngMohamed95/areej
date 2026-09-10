@@ -28,8 +28,8 @@ jobs:
       - name: 📂 Sync files to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ftp.meatport.net
-          username: u177160961.meatport
+          server: ftp.areej-sa.net
+          username: u177160961.areej
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
           server-dir: ./

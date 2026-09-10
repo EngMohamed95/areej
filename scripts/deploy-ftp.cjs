@@ -17,8 +17,8 @@ async function run() {
   const ftp = require('basic-ftp');
 
   // 2. Load and validate FTP configuration
-  const host = 'ftp.meatport.net';
-  const user = 'u177160961.meatport';
+  const host = 'ftp.areej-sa.net';
+  const user = 'u177160961.areej';
   let password = process.env.FTP_PASSWORD;
   const remoteDir = './';
 
