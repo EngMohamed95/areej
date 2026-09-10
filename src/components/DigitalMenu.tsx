@@ -700,6 +700,61 @@ export default function DigitalMenu({
                   <MessageCircle className="w-4 h-4" />
                   <span>{lang === 'ar' ? 'راسلنا واتساب' : 'WhatsApp Us'}</span>
                 </a>
+                <a 
+                  href={tenant.mapsUrl || "https://maps.app.goo.gl/w3nkestjZoarGVBT8?g_st=iw"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-2.5 p-2.5 rounded-xl bg-emerald-600 text-white text-xs font-black transition shadow-xs hover:bg-emerald-700"
+                >
+                  <MapPin className="w-4 h-4" />
+                  <span>{lang === 'ar' ? 'موقعنا على خرائط Google' : 'Location on Google Maps'}</span>
+                </a>
+
+                {/* Social media icons in mobile drawer */}
+                <div className="flex items-center justify-center gap-3 pt-2">
+                  <a 
+                    href={tenant.instagramUrl || "https://www.instagram.com/areejj_ksa?igsh=MXEyaGhwaWJ6Znl5Yg=="} 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center shadow-xs"
+                    title="Instagram (@areejj_ksa)"
+                  >
+                    <Instagram className="w-3.5 h-3.5" />
+                  </a>
+                  <a 
+                    href={tenant.snapchatUrl || "https://www.snapchat.com/add/areejj_sa1?share_id=W3CzsCnxUJM&locale=en-US"} 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-full bg-[#FFFC00] text-black flex items-center justify-center shadow-xs"
+                    title="Snapchat (@areejj_sa1)"
+                  >
+                    <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                      <path d="M12.164 3.003c-3.535 0-5.836 2.593-5.836 5.892 0 .848.204 1.954.204 1.954s-.472.155-.953.486c-.53.364-.814.862-.814 1.428 0 .894.697 1.488 1.487 1.637.284.053.435-.01.435-.01s-.292.83-.49 1.517c-.204.708-.667 1.026-1.328 1.13-.591.094-.96.48-.96 1.001 0 .825.94 1.346 2.05 1.465.733.078 1.25.438 1.649.953.515.666 1.417 1.534 3.756 1.534 2.34 0 3.242-.868 3.757-1.534.4-.515.916-.875 1.649-.953 1.11-.119 2.05-.64 2.05-1.465 0-.521-.369-.907-.96-1.001-.661-.104-1.124-.422-1.328-1.13-.198-.687-.49-1.517-.49-1.517s.151.063.435.01c.79-.149 1.487-.743 1.487-1.637 0-.566-.284-1.064-.814-1.428-.481-.331-.953-.486-.953-.486s.204-1.106.204-1.954c0-3.299-2.3-5.892-5.835-5.892z" />
+                    </svg>
+                  </a>
+                  <a 
+                    href={tenant.tiktokUrl || "https://www.tiktok.com/@areejj_sa?_r=1&_t=ZS-98O9xyKq0NY"} 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center shadow-xs border border-gray-700"
+                    title="TikTok (@areejj_sa)"
+                  >
+                    <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 3 15.68 6.34 6.34 0 0 0 9.34 22a6.34 6.34 0 0 0 6.33-6.32V8.92a8.27 8.27 0 0 0 4.83 1.55v-3.48a4.85 4.85 0 0 1-.91-.3z"/>
+                    </svg>
+                  </a>
+                  <a 
+                    href={tenant.twitterUrl || "https://x.com/Areejj_sa"} 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center shadow-xs border border-gray-700"
+                    title="X / Twitter (@Areejj_sa)"
+                  >
+                    <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -1385,25 +1440,43 @@ export default function DigitalMenu({
                       <span>{lang === 'ar' ? branch.nameAr : branch.nameEn}</span>
                     </div>
                     <p className="mr-5">{lang === 'ar' ? branch.addressAr : branch.addressEn}</p>
-                    {(branch.phone || tenant.phone) && (
-                      <a href={`tel:${branch.phone || tenant.phone || '0555825356'}`} className="flex items-center gap-1 mr-5 hover:text-[var(--tenant-primary)] text-slate-500 dark:hover:text-[var(--tenant-primary)] transition text-[9px]">
-                        <Phone className="w-3 h-3 text-emerald-500" />
-                        <span>{branch.phone || tenant.phone || '0555825356'}</span>
+                    <div className="mr-5 flex items-center gap-3 pt-1 flex-wrap">
+                      {(branch.phone || tenant.phone) && (
+                        <a href={`tel:${branch.phone || tenant.phone || '0555825356'}`} className="flex items-center gap-1 hover:text-[var(--tenant-primary)] text-slate-500 dark:hover:text-[var(--tenant-primary)] transition text-[9px]">
+                          <Phone className="w-3 h-3 text-emerald-500" />
+                          <span>{branch.phone || tenant.phone || '0555825356'}</span>
+                        </a>
+                      )}
+                      <a 
+                        href={tenant.mapsUrl || "https://maps.app.goo.gl/w3nkestjZoarGVBT8?g_st=iw"}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-[9px] font-black text-emerald-600 dark:text-emerald-400 hover:underline bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 transition"
+                      >
+                        <MapPin className="w-3 h-3" />
+                        <span>{lang === 'ar' ? 'عرض الموقع على الخريطة 🗺️' : 'View on Google Maps 🗺️'}</span>
                       </a>
-                    )}
+                    </div>
                   </div>
                 ))
               ) : (
                 <div className="space-y-1 text-[10px] text-gray-400 font-semibold">
                   <div className="flex items-center gap-1.5 text-gray-900 dark:text-white font-bold">
                     <MapPin className="w-3.5 h-3.5 text-[var(--tenant-primary)]" />
-                    <span>{lang === 'ar' ? 'فرع الخبر - العليا' : 'Khobar Olaya Branch'}</span>
+                    <span>{lang === 'ar' ? 'مطعم ولاونج أريج' : 'Areej Lounge & Restaurant'}</span>
                   </div>
-                  <p className="mr-5">{lang === 'ar' ? 'الخبر - العليا - بشار بن برد' : 'Khobar - Olaya - Bashar Bin Burd'}</p>
-                  <a href="tel:0555825356" className="flex items-center gap-1 mr-5 hover:text-[var(--tenant-primary)] text-slate-500 dark:hover:text-[var(--tenant-primary)] transition text-[9px]">
-                    <Phone className="w-3 h-3 text-emerald-500" />
-                    <span>0555825356</span>
-                  </a>
+                  <p className="mr-5">{lang === 'ar' ? 'المملكة العربية السعودية' : 'Saudi Arabia'}</p>
+                  <div className="mr-5 flex items-center gap-3 pt-1 flex-wrap">
+                    <a 
+                      href={tenant.mapsUrl || "https://maps.app.goo.gl/w3nkestjZoarGVBT8?g_st=iw"}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-[9px] font-black text-emerald-600 dark:text-emerald-400 hover:underline bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 transition"
+                    >
+                      <MapPin className="w-3 h-3" />
+                      <span>{lang === 'ar' ? 'عرض الموقع على الخريطة 🗺️' : 'View on Google Maps 🗺️'}</span>
+                    </a>
+                  </div>
                 </div>
               )}
             </div>
@@ -1454,35 +1527,63 @@ export default function DigitalMenu({
             <div className="flex items-center gap-2.5 flex-wrap">
               {/* Instagram */}
               <a 
-                href="#" 
-                className="w-8 h-8 rounded-full bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-400 flex items-center justify-center hover:bg-rose-600 hover:text-white transition shadow-sm border border-rose-100/10"
-                title="Instagram"
+                href={tenant.instagramUrl || "https://www.instagram.com/areejj_ksa?igsh=MXEyaGhwaWJ6Znl5Yg=="} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-sm"
+                title="Instagram (@areejj_ksa)"
               >
                 <Instagram className="w-4 h-4" />
               </a>
-              {/* Facebook */}
+
+              {/* Snapchat */}
               <a 
-                href="#"
-                className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950/20 dark:text-blue-400 flex items-center justify-center hover:bg-blue-600 hover:text-white transition shadow-sm border border-blue-100/10"
-                title="Facebook"
+                href={tenant.snapchatUrl || "https://www.snapchat.com/add/areejj_sa1?share_id=W3CzsCnxUJM&locale=en-US"} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full bg-[#FFFC00] text-black flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-sm"
+                title="Snapchat (@areejj_sa1)"
               >
-                <Facebook className="w-4 h-4" />
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M12.164 3.003c-3.535 0-5.836 2.593-5.836 5.892 0 .848.204 1.954.204 1.954s-.472.155-.953.486c-.53.364-.814.862-.814 1.428 0 .894.697 1.488 1.487 1.637.284.053.435-.01.435-.01s-.292.83-.49 1.517c-.204.708-.667 1.026-1.328 1.13-.591.094-.96.48-.96 1.001 0 .825.94 1.346 2.05 1.465.733.078 1.25.438 1.649.953.515.666 1.417 1.534 3.756 1.534 2.34 0 3.242-.868 3.757-1.534.4-.515.916-.875 1.649-.953 1.11-.119 2.05-.64 2.05-1.465 0-.521-.369-.907-.96-1.001-.661-.104-1.124-.422-1.328-1.13-.198-.687-.49-1.517-.49-1.517s.151.063.435.01c.79-.149 1.487-.743 1.487-1.637 0-.566-.284-1.064-.814-1.428-.481-.331-.953-.486-.953-.486s.204-1.106.204-1.954c0-3.299-2.3-5.892-5.835-5.892z" />
+                </svg>
               </a>
-              {/* WhatsApp Icon for channel */}
+
+              {/* TikTok */}
               <a 
-                href="#"
-                className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition shadow-sm border border-emerald-100/10"
-                title="WhatsApp Channel"
+                href={tenant.tiktokUrl || "https://www.tiktok.com/@areejj_sa?_r=1&_t=ZS-98O9xyKq0NY"} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-sm border border-gray-700"
+                title="TikTok (@areejj_sa)"
               >
-                <MessageCircle className="w-4 h-4" />
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 3 15.68 6.34 6.34 0 0 0 9.34 22a6.34 6.34 0 0 0 6.33-6.32V8.92a8.27 8.27 0 0 0 4.83 1.55v-3.48a4.85 4.85 0 0 1-.91-.3z"/>
+                </svg>
               </a>
-              {/* Twitter / X */}
+
+              {/* X / Twitter */}
               <a 
-                href="#"
-                className="w-8 h-8 rounded-full bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-200 flex items-center justify-center hover:bg-slate-650 hover:text-white transition shadow-sm border border-slate-100/10"
-                title="X / Twitter"
+                href={tenant.twitterUrl || "https://x.com/Areejj_sa"} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-sm border border-gray-700"
+                title="X / Twitter (@Areejj_sa)"
               >
-                <span className="text-[11px] font-bold font-mono">X</span>
+                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+              </a>
+
+              {/* Google Maps Location */}
+              <a 
+                href={tenant.mapsUrl || "https://maps.app.goo.gl/w3nkestjZoarGVBT8?g_st=iw"} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-sm"
+                title={lang === 'ar' ? 'موقعنا على خرائط Google' : 'Location on Google Maps'}
+              >
+                <MapPin className="w-4 h-4" />
               </a>
             </div>
             <div className="pt-2 text-[9px] text-gray-500 font-mono">

@@ -34,6 +34,9 @@ export interface Tenant {
   instagramUrl?: string;
   twitterUrl?: string;
   whatsappNumber?: string;
+  snapchatUrl?: string;
+  tiktokUrl?: string;
+  mapsUrl?: string;
 }
 
 export interface Branch {

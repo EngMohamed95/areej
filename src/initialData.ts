@@ -18,12 +18,14 @@ export const initialTenants: Tenant[] = [
     phone: '+966500000000',
     hoursAr: 'ساعات العمل: ١٢ ظهراً - ١٢ ليلاً',
     hoursEn: 'Opening Hours: 12 PM - 12 AM',
-    handle: '@areej_sa',
+    handle: '@areejj_sa',
     copyrightAr: 'جميع الحقوق محفوظة © ٢٠٢٦ لـ مطعم ولاونج أريج (areej-sa.net)',
     copyrightEn: 'All Rights Reserved © 2026 for Areej Lounge & Restaurant (areej-sa.net)',
-    facebookUrl: '#',
-    instagramUrl: '#',
-    twitterUrl: '#',
+    instagramUrl: 'https://www.instagram.com/areejj_ksa?igsh=MXEyaGhwaWJ6Znl5Yg==',
+    snapchatUrl: 'https://www.snapchat.com/add/areejj_sa1?share_id=W3CzsCnxUJM&locale=en-US',
+    tiktokUrl: 'https://www.tiktok.com/@areejj_sa?_r=1&_t=ZS-98O9xyKq0NY',
+    twitterUrl: 'https://x.com/Areejj_sa',
+    mapsUrl: 'https://maps.app.goo.gl/w3nkestjZoarGVBT8?g_st=iw',
     whatsappNumber: '+966500000000'
   }
 ];

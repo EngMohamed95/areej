@@ -9,7 +9,7 @@ import DigitalMenu from './components/DigitalMenu';
 import { Lock, ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react';
 
 // Clear legacy cached Meatport keys and synchronize Areej catalog version
-const AREEJ_CATALOG_VERSION = 'areej_v2.0';
+const AREEJ_CATALOG_VERSION = 'areej_v2.1';
 
 const syncAreejCatalog = () => {
   const legacyKeys = [
@@ -58,6 +58,12 @@ export default function App() {
             parsed[0].primaryColor = initialTenants[0].primaryColor;
             parsed[0].secondaryColor = initialTenants[0].secondaryColor;
           }
+          parsed[0].instagramUrl = initialTenants[0].instagramUrl;
+          parsed[0].snapchatUrl = initialTenants[0].snapchatUrl;
+          parsed[0].tiktokUrl = initialTenants[0].tiktokUrl;
+          parsed[0].twitterUrl = initialTenants[0].twitterUrl;
+          parsed[0].mapsUrl = initialTenants[0].mapsUrl;
+          parsed[0].handle = initialTenants[0].handle;
           return parsed;
         }
       } catch (e) {
