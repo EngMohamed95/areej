@@ -561,11 +561,11 @@ export default function DigitalMenu({
             
             {/* Desktop Direct Call Support Link */}
             <a 
-              href={`tel:${tenant.phone || '0555825356'}`} 
+              href={`tel:${tenant.phone || '+966504949346'}`} 
               className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-[10px] font-black bg-emerald-500/5 hover:bg-emerald-500/10 transition leading-none"
             >
               <Phone className="w-3.5 h-3.5" />
-              <span>{tenant.phone || '0555825356'}</span>
+              <span>{tenant.phone || '+966 50 494 9346'}</span>
             </a>
 
             {/* Language Switcher (Desktop Only) */}
@@ -685,14 +685,14 @@ export default function DigitalMenu({
                   {lang === 'ar' ? 'اتصال مباشر وسريع' : 'Quick Actions'}
                 </h5>
                 <a 
-                  href={`tel:${tenant.phone || '0555825356'}`}
+                  href={`tel:${tenant.phone || '+966504949346'}`}
                   className="flex items-center justify-center gap-2.5 p-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-black transition border border-blue-500/15"
                 >
                   <Phone className="w-4 h-4" />
                   <span>{lang === 'ar' ? 'اتصال هاتفي بالفروع' : 'Call Phone'}</span>
                 </a>
                 <a 
-                  href={tenant.whatsappNumber && tenant.whatsappNumber !== '#' ? `https://wa.me/${tenant.whatsappNumber.replace(/[^0-9]/g, '')}` : 'https://wa.me/966555825356'}
+                  href={tenant.whatsappNumber && tenant.whatsappNumber !== '#' ? `https://wa.me/${tenant.whatsappNumber.replace(/[^0-9]/g, '')}` : 'https://wa.me/966504949346'}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center justify-center gap-2.5 p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-black transition border border-emerald-500/15"
@@ -781,7 +781,7 @@ export default function DigitalMenu({
               {/* Working hours display */}
               <div className="text-[9px] text-gray-400 flex items-center justify-center gap-1 font-bold">
                 <Clock className="w-3 h-3 text-[var(--tenant-primary)] animate-pulse" />
-                <span>{lang === 'ar' ? (tenant.hoursAr || 'ساعات العمل: ١٢ ظهراً - ٢ ليلاً') : (tenant.hoursEn || 'Opening Hours: 12 PM - 2 AM')}</span>
+                <span>{lang === 'ar' ? (tenant.hoursAr || 'من ١٢ ظهراً إلى ١٢ صباحاً') : (tenant.hoursEn || '12:00 PM - 12:00 AM')}</span>
               </div>
             </div>
           </div>
@@ -830,7 +830,7 @@ export default function DigitalMenu({
                 : (tenant.descEn || 'Welcome to Areej Restaurant, offering an exquisite dining experience with handcrafted delicacies and exceptional hospitality.')}
             </p>
             <div className="mt-2.5 flex items-center gap-2.5 text-[8px] text-gray-400 font-semibold flex-wrap">
-              <span>⏰ {lang === 'ar' ? (tenant.hoursAr || '١٢ ظهراً - ١٢ ليلاً') : (tenant.hoursEn || '12 PM - 12 AM')}</span>
+              <span>⏰ {lang === 'ar' ? (tenant.hoursAr || 'من ١٢ ظهراً إلى ١٢ صباحاً') : (tenant.hoursEn || '12:00 PM - 12:00 AM')}</span>
               <span>•</span>
               <a 
                 href={tenant.mapsUrl || "https://maps.app.goo.gl/w3nkestjZoarGVBT8?g_st=iw"}
@@ -838,7 +838,7 @@ export default function DigitalMenu({
                 rel="noreferrer"
                 className="hover:text-white transition flex items-center gap-1 text-emerald-400 font-bold"
               >
-                <span>📍 {lang === 'ar' ? 'موقعنا على الخريطة' : 'Google Maps Location'}</span>
+                <span>📍 {lang === 'ar' ? (tenant.addressAr || 'شارع الأمير تركي، حي الكورنيش، الخبر') : (tenant.addressEn || 'Prince Turki St, Corniche, Khobar')}</span>
               </a>
             </div>
           </div>
@@ -1425,7 +1425,7 @@ export default function DigitalMenu({
 
             <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold">
               <Clock className="w-3.5 h-3.5 text-[var(--tenant-primary)]" />
-              <span>{lang === 'ar' ? (tenant.hoursAr || 'ساعات العمل: ١٢ ظهراً - ٢ ليلاً') : (tenant.hoursEn || 'Opening Hours: 12 PM - 2 AM')}</span>
+              <span>{lang === 'ar' ? (tenant.hoursAr || 'من ١٢ ظهراً إلى ١٢ صباحاً') : (tenant.hoursEn || 'Opening Hours: 12:00 PM - 12:00 AM')}</span>
             </div>
           </div>
 
@@ -1466,10 +1466,17 @@ export default function DigitalMenu({
                 <div className="space-y-1 text-[10px] text-gray-400 font-semibold">
                   <div className="flex items-center gap-1.5 text-gray-900 dark:text-white font-bold">
                     <MapPin className="w-3.5 h-3.5 text-[var(--tenant-primary)]" />
-                    <span>{lang === 'ar' ? 'مطعم ولاونج أريج' : 'Areej Lounge & Restaurant'}</span>
+                    <span>{lang === 'ar' ? 'مطعم أريج' : 'Areej Restaurant'}</span>
                   </div>
-                  <p className="mr-5">{lang === 'ar' ? 'المملكة العربية السعودية' : 'Saudi Arabia'}</p>
+                  <p className="mr-5">{lang === 'ar' ? 'شارع الأمير تركي، حي الكورنيش، الخبر' : 'Prince Turki St, Corniche, Khobar'}</p>
                   <div className="mr-5 flex items-center gap-3 pt-1 flex-wrap">
+                    <a 
+                      href={`tel:${tenant.phone || '+966504949346'}`} 
+                      className="flex items-center gap-1 hover:text-[var(--tenant-primary)] text-slate-500 dark:hover:text-[var(--tenant-primary)] transition text-[9px]"
+                    >
+                      <Phone className="w-3 h-3 text-emerald-500" />
+                      <span>{tenant.phone || '+966 50 494 9346'}</span>
+                    </a>
                     <a 
                       href={tenant.mapsUrl || "https://maps.app.goo.gl/w3nkestjZoarGVBT8?g_st=iw"}
                       target="_blank"
@@ -1498,7 +1505,7 @@ export default function DigitalMenu({
             <div className="space-y-2.5">
               {/* WhatsApp Button */}
               <a 
-                href={tenant.whatsappNumber && tenant.whatsappNumber !== '#' ? `https://wa.me/${tenant.whatsappNumber.replace(/[^0-9]/g, '')}` : 'https://wa.me/966555825356'}
+                href={tenant.whatsappNumber && tenant.whatsappNumber !== '#' ? `https://wa.me/${tenant.whatsappNumber.replace(/[^0-9]/g, '')}` : 'https://wa.me/966504949346'}
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-emerald-550/10 hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black transition border border-emerald-500/20"
@@ -1508,11 +1515,11 @@ export default function DigitalMenu({
               </a>
               {/* Phone call button */}
               <a 
-                href={`tel:${tenant.phone || '0555825356'}`}
+                href={`tel:${tenant.phone || '+966504949346'}`}
                 className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[var(--tenant-primary)]/10 hover:bg-[var(--tenant-primary)]/20 text-rose-600 text-[10px] font-black transition border border-[var(--tenant-primary)]/20"
               >
                 <Phone className="w-4 h-4 text-[var(--tenant-primary)]" />
-                <span>{lang === 'ar' ? `اتصل بنا: ${tenant.phone || '0555825356'}` : `Call Support: ${tenant.phone || '0555825356'}`}</span>
+                <span>{lang === 'ar' ? `اتصل بنا: ${tenant.phone || '+966 50 494 9346'}` : `Call Support: ${tenant.phone || '+966 50 494 9346'}`}</span>
               </a>
             </div>
           </div>

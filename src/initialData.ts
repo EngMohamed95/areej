@@ -13,11 +13,11 @@ export const initialTenants: Tenant[] = [
     currencyAr: 'ر.س',
     descAr: 'أهلاً بكم في مطعم أريج، نقدّم لكم تجربة استثنائية من أشهى المأكولات والمشروبات بأعلى معايير الجودة والضيافة الراقية.',
     descEn: 'Welcome to Areej Restaurant, offering an exquisite dining experience with handcrafted delicacies and exceptional hospitality.',
-    addressAr: 'المملكة العربية السعودية',
-    addressEn: 'Saudi Arabia',
-    phone: '+966500000000',
-    hoursAr: 'ساعات العمل: ١٢ ظهراً - ١٢ ليلاً',
-    hoursEn: 'Opening Hours: 12 PM - 12 AM',
+    addressAr: 'شارع الأمير تركي، حي الكورنيش، الخبر',
+    addressEn: 'Prince Turki St, Corniche, Khobar',
+    phone: '+966504949346',
+    hoursAr: 'من ١٢ ظهراً إلى ١٢ صباحاً',
+    hoursEn: '12:00 PM - 12:00 AM',
     handle: '@areejj_sa',
     copyrightAr: 'جميع الحقوق محفوظة © ٢٠٢٦ لـ مطعم أريج (areej-sa.net)',
     copyrightEn: 'All Rights Reserved © 2026 for Areej Restaurant (areej-sa.net)',
@@ -26,7 +26,7 @@ export const initialTenants: Tenant[] = [
     tiktokUrl: 'https://www.tiktok.com/@areejj_sa?_r=1&_t=ZS-98O9xyKq0NY',
     twitterUrl: 'https://x.com/Areejj_sa',
     mapsUrl: 'https://maps.app.goo.gl/w3nkestjZoarGVBT8?g_st=iw',
-    whatsappNumber: '+966500000000'
+    whatsappNumber: '+966504949346'
   }
 ];
 
@@ -34,11 +34,11 @@ export const initialBranches: Branch[] = [
   {
     id: 'b-areej-1',
     tenantId: 'areej',
-    nameEn: 'Main Branch',
-    nameAr: 'الفرع الرئيسي',
-    addressEn: 'Saudi Arabia',
-    addressAr: 'المملكة العربية السعودية',
-    phone: '+966500000000',
+    nameEn: 'Khobar Corniche Branch',
+    nameAr: 'فرع الخبر - الكورنيش',
+    addressEn: 'Prince Turki St, Corniche, Khobar',
+    addressAr: 'شارع الأمير تركي، حي الكورنيش، الخبر',
+    phone: '+966504949346',
     isActive: true
   }
 ];

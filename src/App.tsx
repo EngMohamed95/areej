@@ -9,7 +9,7 @@ import DigitalMenu from './components/DigitalMenu';
 import { Lock, ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react';
 
 // Clear legacy cached Meatport keys and synchronize Areej catalog version
-const AREEJ_CATALOG_VERSION = 'areej_v2.2';
+const AREEJ_CATALOG_VERSION = 'areej_v2.3';
 
 const syncAreejCatalog = () => {
   const legacyKeys = [
@@ -56,6 +56,12 @@ export default function App() {
           parsed[0].descEn = initialTenants[0].descEn;
           parsed[0].copyrightAr = initialTenants[0].copyrightAr;
           parsed[0].copyrightEn = initialTenants[0].copyrightEn;
+          parsed[0].phone = initialTenants[0].phone;
+          parsed[0].whatsappNumber = initialTenants[0].whatsappNumber;
+          parsed[0].addressAr = initialTenants[0].addressAr;
+          parsed[0].addressEn = initialTenants[0].addressEn;
+          parsed[0].hoursAr = initialTenants[0].hoursAr;
+          parsed[0].hoursEn = initialTenants[0].hoursEn;
           if (!parsed[0].primaryColor || parsed[0].primaryColor === '#e11d48') {
             parsed[0].primaryColor = initialTenants[0].primaryColor;
             parsed[0].secondaryColor = initialTenants[0].secondaryColor;
@@ -88,7 +94,14 @@ export default function App() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          parsed[0].nameAr = initialBranches[0].nameAr;
+          parsed[0].nameEn = initialBranches[0].nameEn;
+          parsed[0].addressAr = initialBranches[0].addressAr;
+          parsed[0].addressEn = initialBranches[0].addressEn;
+          parsed[0].phone = initialBranches[0].phone;
+          return parsed;
+        }
       } catch (e) {
         console.error(e);
       }
