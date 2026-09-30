@@ -37,11 +37,11 @@ jobs:
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_PASSWORD_PRODUCTION: ${{ secrets.DB_PASSWORD_PRODUCTION }}
           ADMIN_PIN: ${{ secrets.ADMIN_PIN }}
         run: |
           missing=0
-          for key in FTP_PASSWORD DB_HOST DB_NAME DB_USER DB_PASSWORD ADMIN_PIN; do
+          for key in FTP_PASSWORD DB_HOST DB_NAME DB_USER DB_PASSWORD_PRODUCTION ADMIN_PIN; do
             if [ -z "${!key}" ]; then
               echo "::error::Missing GitHub Actions secret: $key"
               missing=1
@@ -61,7 +61,7 @@ jobs:
           DB_PORT: ${{ secrets.DB_PORT || '3306' }}
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD_PRODUCTION }}
           ADMIN_PIN: ${{ secrets.ADMIN_PIN }}
         run: npm run build
 

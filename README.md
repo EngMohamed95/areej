@@ -40,7 +40,7 @@ npm run build
 
 - `FTP_PASSWORD` (بيانات السيرفر والمستخدم ثابتة في الـWorkflow الحالي لهذا الموقع)
 - `FTP_SERVER_DIR` اختياري؛ القيمة الافتراضية `./`
-- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
+- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD_PRODUCTION`
 - `ADMIN_PIN` ويُستخدم لإنشاء أول مستخدم فقط عندما يكون جدول المستخدمين فارغًا
 
 يمكن تشغيل النشر يدويًا أيضًا من صفحة `Actions > Deploy Areej to Hostinger > Run workflow`.
