@@ -3,9 +3,10 @@ import {
   Plus, Edit2, Trash2, ArrowUp, ArrowDown, Download, Upload, Check, X, 
   Settings, Layers, DollarSign, Package, AlertTriangle, ListFilter, FileText,
   TrendingUp, Activity, Shuffle, Eye, EyeOff, Tag, Clock, Flame, Percent,
-  Warehouse, Users, ChefHat, Menu, ShoppingBag, Archive, ClipboardList
+  Warehouse, Users, ChefHat, Menu, ShoppingBag, Archive, ClipboardList, Languages
 } from 'lucide-react';
-import { Product, Category, ModifierGroup, AuditLog, Tenant, Branch } from '../types';
+import { Product, Category, ModifierGroup, AuditLog, Tenant, Branch, StaffUser } from '../types';
+import UsersManager from './UsersManager';
 
 interface AdminDashboardProps {
   tenant: Tenant;
@@ -19,13 +20,20 @@ interface AdminDashboardProps {
   setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
   addAuditLog?: (action: string, entityName: string, entityId: string, details: string) => void;
   lang: 'en' | 'ar';
+  setLang: React.Dispatch<React.SetStateAction<'en' | 'ar'>>;
   currentPath: string;
   navigateTo: (path: string) => void;
-  activeStaff?: any;
+  activeStaff?: StaffUser | null;
+  staffUsers?: StaffUser[];
+  onRefreshUsers?: () => Promise<void>;
+  onSaveUser?: (user: StaffUser & { pin?: string }) => Promise<void>;
+  onDeleteUser?: (id: string) => Promise<void>;
   onLogout?: () => void;
   darkMode?: boolean;
   setDarkMode?: (dark: boolean) => void;
   setBranches?: React.Dispatch<React.SetStateAction<Branch[]>>;
+  databaseStatus?: 'loading' | 'online' | 'syncing' | 'offline';
+  lastSyncedAt?: Date | null;
 }
 
 export default function AdminDashboard({
@@ -40,24 +48,32 @@ export default function AdminDashboard({
   setCategories,
   addAuditLog,
   lang,
+  setLang,
   currentPath,
   navigateTo,
   activeStaff,
+  staffUsers = [],
+  onSaveUser,
+  onDeleteUser,
   onLogout,
   darkMode,
   setDarkMode,
-  setBranches
+  setBranches,
+  databaseStatus = 'loading',
+  lastSyncedAt = null
 }: AdminDashboardProps) {
   // Dynamically calculate the active tab from the URL pathname
   const activeTab = (() => {
     if (currentPath === '/admin/categories' || currentPath === '/staff/categories') return 'categories';
+    if (currentPath === '/admin/users' || currentPath === '/staff/users') return 'users';
     if (currentPath === '/admin/settings' || currentPath === '/staff/settings') return 'settings';
     return 'products'; // fallback
   })();
 
-  const setActiveTab = (tab: 'products' | 'categories' | 'settings') => {
+  const setActiveTab = (tab: 'products' | 'categories' | 'users' | 'settings') => {
     if (tab === 'products') navigateTo('/admin/products');
     else if (tab === 'categories') navigateTo('/admin/categories');
+    else if (tab === 'users') navigateTo('/admin/users');
     else if (tab === 'settings') navigateTo('/admin/settings');
   };
 
@@ -243,7 +259,8 @@ export default function AdminDashboard({
                               p.sku.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesCategory = categoryFilter === 'all' || p.categoryId === categoryFilter;
         return matchesSearch && matchesCategory;
-      });
+      })
+      .sort((a, b) => a.displayOrder - b.displayOrder);
   }, [products, tenant, searchQuery, categoryFilter]);
 
   // Key Metrics Calculations
@@ -459,6 +476,19 @@ export default function AdminDashboard({
       setProducts(prev => prev.filter(p => p.id !== id));
       addAuditLog?.('DELETE_PRODUCT', 'Product', id, `Soft deleted product: ${target.nameEn}`);
     }
+  };
+
+  const handleToggleProductVisibility = (id: string) => {
+    setProducts(prev => prev.map(product =>
+      product.id === id ? { ...product, isVisible: !product.isVisible } : product
+    ));
+  };
+
+  const handleAdjustStock = (id: string, amount: number) => {
+    setProducts(prev => prev.map(product => {
+      if (product.id !== id || !product.trackStock) return product;
+      return { ...product, stockQuantity: Math.max(0, product.stockQuantity + amount) };
+    }));
   };
 
   // Delete Category
@@ -733,6 +763,16 @@ export default function AdminDashboard({
                 <span>{lang === 'ar' ? 'إعدادات المتجر وهوية المنيو' : 'Store & Menu Settings'}</span>
               </button>
 
+              <button
+                onClick={() => { setActiveTab('users'); setMobileMenuOpen(false); }}
+                className={`w-full px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 cursor-pointer ${
+                  activeTab === 'users' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'
+                }`}
+              >
+                <Users className="w-4 h-4" />
+                <span>{lang === 'ar' ? 'إدارة المستخدمين' : 'Users & Roles'}</span>
+              </button>
+
               <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
                 <button
                   onClick={() => { navigateTo('/menu'); setMobileMenuOpen(false); }}
@@ -839,6 +879,18 @@ export default function AdminDashboard({
                 <span>{lang === 'ar' ? 'إعدادات المتجر وهوية المنيو' : 'Store & Menu Settings'}</span>
               </button>
 
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`w-full px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 cursor-pointer ${
+                  activeTab === 'users'
+                    ? 'bg-rose-600 text-white shadow-sm'
+                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'
+                }`}
+              >
+                <Users className="w-4 h-4" />
+                <span>{lang === 'ar' ? 'إدارة المستخدمين' : 'Users & Roles'}</span>
+              </button>
+
               <div className="pt-3 border-t border-gray-100/50 dark:border-gray-800">
                 <button
                   onClick={() => navigateTo('/menu')}
@@ -899,14 +951,44 @@ export default function AdminDashboard({
           </div>
 
           <div className="flex items-center gap-2">
+            <div
+              className={`hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg border ${
+                databaseStatus === 'online'
+                  ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                  : databaseStatus === 'syncing' || databaseStatus === 'loading'
+                    ? 'text-amber-700 bg-amber-50 border-amber-200'
+                    : 'text-red-700 bg-red-50 border-red-200'
+              }`}
+              title={lastSyncedAt?.toLocaleTimeString(lang === 'ar' ? 'ar-EG' : 'en-US')}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${
+                databaseStatus === 'online' ? 'bg-emerald-500' : databaseStatus === 'offline' ? 'bg-red-500' : 'bg-amber-500'
+              }`} />
+              {databaseStatus === 'online'
+                ? (lang === 'ar' ? 'MySQL متصلة — مزامنة لايف' : 'MySQL online — live sync')
+                : databaseStatus === 'syncing'
+                  ? (lang === 'ar' ? 'جارٍ الحفظ في MySQL...' : 'Saving to MySQL...')
+                  : databaseStatus === 'offline'
+                    ? (lang === 'ar' ? 'MySQL غير متصلة' : 'MySQL offline')
+                    : (lang === 'ar' ? 'جارٍ الاتصال بـ MySQL...' : 'Connecting to MySQL...')}
+            </div>
+            <button
+              onClick={() => setLang(currentLanguage => currentLanguage === 'ar' ? 'en' : 'ar')}
+              type="button"
+              aria-label={lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition shadow-sm text-gray-700 dark:text-gray-200 cursor-pointer"
+            >
+              <Languages className="w-3.5 h-3.5" />
+              {lang === 'ar' ? 'English' : 'العربية'}
+            </button>
             {/* Export / Import Buttons */}
             <button
-              onClick={() => navigateTo('/menu')}
+              onClick={() => window.open('/menu', '_blank', 'noopener,noreferrer')}
               type="button"
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200/60 rounded-lg hover:bg-rose-100 transition shadow-xs cursor-pointer"
             >
               <Eye className="w-3.5 h-3.5" />
-              {lang === 'ar' ? 'معاينة المنيو' : 'Live Menu'}
+              {lang === 'ar' ? 'فتح المعاينة اللايف' : 'Open Live Menu'}
             </button>
             <button 
               onClick={handleExportCSV}
@@ -933,16 +1015,18 @@ export default function AdminDashboard({
               className="hidden" 
             />
 
-            <button 
-              onClick={() => activeTab === 'products' ? openProductModal() : openCategoryModal()}
-              type="button"
-              className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-rose-600 rounded-lg hover:bg-rose-700 transition shadow-sm cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              {activeTab === 'products' 
-                ? (lang === 'ar' ? 'إضافة منتج' : 'Add Product') 
-                : (lang === 'ar' ? 'إضافة فئة' : 'Add Category')}
-            </button>
+            {(activeTab === 'products' || activeTab === 'categories') && (
+              <button
+                onClick={() => activeTab === 'products' ? openProductModal() : openCategoryModal()}
+                type="button"
+                className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-rose-600 rounded-lg hover:bg-rose-700 transition shadow-sm cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                {activeTab === 'products'
+                  ? (lang === 'ar' ? 'إضافة منتج' : 'Add Product')
+                  : (lang === 'ar' ? 'إضافة فئة' : 'Add Category')}
+              </button>
+            )}
           </div>
         </header>
 
@@ -1144,25 +1228,49 @@ export default function AdminDashboard({
                           </td>
                           <td className="p-4">
                             {p.trackStock ? (
-                              <span className={`font-semibold ${p.stockQuantity <= 10 ? 'text-amber-600 animate-pulse' : 'text-gray-700'}`}>
-                                {p.stockQuantity} {lang === 'ar' ? 'حبة' : 'units'}
-                              </span>
+                              <div className="inline-flex items-center gap-1" dir="ltr">
+                                <button
+                                  type="button"
+                                  onClick={() => handleAdjustStock(p.id, -1)}
+                                  disabled={p.stockQuantity === 0}
+                                  className="w-6 h-6 rounded border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-30 font-bold"
+                                  aria-label={lang === 'ar' ? `تقليل مخزون ${p.nameAr}` : `Decrease ${p.nameEn} stock`}
+                                >
+                                  −
+                                </button>
+                                <span className={`min-w-8 text-center font-semibold ${p.stockQuantity <= 10 ? 'text-amber-600' : 'text-gray-700'}`}>
+                                  {p.stockQuantity}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleAdjustStock(p.id, 1)}
+                                  className="w-6 h-6 rounded border border-gray-200 bg-white hover:bg-gray-50 font-bold"
+                                  aria-label={lang === 'ar' ? `زيادة مخزون ${p.nameAr}` : `Increase ${p.nameEn} stock`}
+                                >
+                                  +
+                                </button>
+                              </div>
                             ) : (
                               <span className="text-gray-400">--</span>
                             )}
                           </td>
                           <td className="p-4">
-                            {p.isVisible ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 bg-emerald-50 rounded border border-emerald-100">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                {lang === 'ar' ? 'نشط' : 'Visible'}
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold text-gray-400 bg-gray-50 rounded border border-gray-100">
-                                <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
-                                {lang === 'ar' ? 'مخفي' : 'Hidden'}
-                              </span>
-                            )}
+                            <button
+                              type="button"
+                              role="switch"
+                              aria-checked={p.isVisible}
+                              onClick={() => handleToggleProductVisibility(p.id)}
+                              className={`inline-flex items-center gap-1.5 px-2 py-1 text-[10px] font-semibold rounded border transition ${
+                                p.isVisible
+                                  ? 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
+                                  : 'text-gray-500 bg-gray-50 border-gray-200 hover:bg-gray-100'
+                              }`}
+                            >
+                              {p.isVisible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                              {p.isVisible
+                                ? (lang === 'ar' ? 'ظاهر في المنيو' : 'Visible')
+                                : (lang === 'ar' ? 'مخفي من المنيو' : 'Hidden')}
+                            </button>
                           </td>
                           <td className="p-4">
                             <div className="flex items-center justify-center gap-1">
@@ -1294,6 +1402,17 @@ export default function AdminDashboard({
             </div>
           </div>
         </div>
+      )}
+
+      {activeTab === 'users' && onSaveUser && onDeleteUser && (
+        <UsersManager
+          users={staffUsers}
+          activeUserId={activeStaff?.id}
+          tenantId={tenant.id}
+          lang={lang}
+          onSave={onSaveUser}
+          onDelete={onDeleteUser}
+        />
       )}
 
       {activeTab === 'settings' && (

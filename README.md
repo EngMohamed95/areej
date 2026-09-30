@@ -20,3 +20,27 @@ npm run dev
 ```bash
 npm run build
 ```
+
+## قاعدة البيانات MySQL
+
+النسخة الإنتاجية تقرأ بيانات المطعم والأصناف والفئات والفروع والإضافات والطلبات والمستخدمين من MySQL عبر API مكتوب بـPHP داخل `public/api`.
+
+1. انسخ `.env.example` إلى `.env` وأدخل بيانات MySQL ورمز الإدارة.
+2. شغّل `npm run build`؛ سيُنشأ ملف `api/config.php` محليًا ويظل مستبعدًا من Git.
+3. ارفع محتويات `dist` إلى `public_html`.
+4. عند أول طلب للـAPI تُنشأ الجداول تلقائيًا وتُستورد بيانات القائمة الأساسية مرة واحدة.
+
+تزامن المنيو يتم تلقائيًا كل 2.5 ثانية، بينما عمليات الإضافة والتعديل والحذف تُحفظ في MySQL فورًا من لوحة الإدارة. يمكن إدارة المستخدمين والصلاحيات من `/admin/users`، ولا يتم تخزين رموز الدخول كنص صريح.
+
+## النشر التلقائي عبر GitHub Actions
+
+أي `push` إلى فرع `main` يشغّل `.github/workflows/deploy.yml`: يفحص TypeScript، يبني الواجهة والـPHP API، يولّد `api/config.php` من GitHub Secrets، يرفع `dist` إلى Hostinger عبر FTP، ثم يفحص API المنشور.
+
+أضف الأسرار التالية من `Settings > Secrets and variables > Actions` في مستودع GitHub:
+
+- `FTP_PASSWORD` (بيانات السيرفر والمستخدم ثابتة في الـWorkflow الحالي لهذا الموقع)
+- `FTP_SERVER_DIR` اختياري؛ القيمة الافتراضية `./`
+- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
+- `ADMIN_PIN` ويُستخدم لإنشاء أول مستخدم فقط عندما يكون جدول المستخدمين فارغًا
+
+يمكن تشغيل النشر يدويًا أيضًا من صفحة `Actions > Deploy Areej to Hostinger > Run workflow`.

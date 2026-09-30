@@ -145,6 +145,18 @@ export interface AuditLog {
   details: string;
 }
 
+export interface StaffUser {
+  id: string;
+  tenantId: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: 'owner' | 'manager' | 'staff';
+  isActive: boolean;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
 export interface Order {
   id: string;
   tenantId: string;

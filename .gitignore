@@ -6,11 +6,16 @@ coverage/
 *.log
 .env*
 !.env.example
+public/api/config.php
+dist/api/config.php
 node-portable.zip
 .node-portable/
 .tmp_meatport_import/
 .tmp_inspect_downloaded/
 *.xlsx
+*-release.zip
+areej-mysql-release*.zip
+areej-core-release*.zip
 .agents/
 Menu.pdf
 menu_pages/

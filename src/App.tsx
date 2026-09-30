@@ -1,168 +1,155 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   initialTenants, initialBranches, initialCategories, 
   initialModifierGroups, initialProducts
 } from './initialData';
-import { Tenant, Branch, Category, ModifierGroup, Product, Order, OrderItem } from './types';
+import { Tenant, Branch, Category, ModifierGroup, Product, Order, OrderItem, StaffUser } from './types';
 import AdminDashboard from './components/AdminDashboard';
 import DigitalMenu from './components/DigitalMenu';
 import { Lock, ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react';
-
-// Clear legacy cached Meatport keys and synchronize Areej catalog version
-const AREEJ_CATALOG_VERSION = 'areej_v2.3';
-
-const syncAreejCatalog = () => {
-  const legacyKeys = [
-    'saas_tenants', 'saas_branches', 'saas_categories_t-1', 
-    'saas_categories_version_t-1', 'saas_products_t-1', 
-    'saas_products_version_t-1', 'saas_modifier_groups_t-1',
-    'saas_ingredients_t-1', 'saas_recipes_t-1', 'saas_orders_t-1',
-    'saas_order_items_t-1', 'saas_audit_logs_t-1', 'saas_employees_t-1',
-    'meatport_admin_session'
-  ];
-  try {
-    legacyKeys.forEach(k => localStorage.removeItem(k));
-    
-    const currentVersion = localStorage.getItem('areej_catalog_version');
-    if (currentVersion !== AREEJ_CATALOG_VERSION) {
-      localStorage.removeItem('menu_categories');
-      localStorage.removeItem('menu_products');
-      localStorage.removeItem('menu_store_profile');
-      localStorage.removeItem('menu_branches');
-      localStorage.removeItem('menu_modifier_groups');
-      localStorage.setItem('areej_catalog_version', AREEJ_CATALOG_VERSION);
-    }
-  } catch (e) {
-    console.error('Catalog sync error:', e);
-  }
-};
-
-syncAreejCatalog();
+import {
+  CatalogResource,
+  CatalogSnapshot,
+  checkAdminSession,
+  createOrder,
+  deleteUser,
+  fetchCatalog,
+  fetchUsers,
+  loginAdmin,
+  logoutAdmin,
+  saveCatalogResource,
+  saveUser
+} from './apiClient';
 
 export default function App() {
-  // Store Branding & Profile
-  const [tenants, setTenants] = useState<Tenant[]>(() => {
-    const saved = localStorage.getItem('menu_store_profile');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          if (!parsed[0].logoUrl || parsed[0].logoUrl === '' || parsed[0].logoUrl.includes('meatport')) {
-            parsed[0].logoUrl = initialTenants[0].logoUrl;
-          }
-          parsed[0].nameEn = initialTenants[0].nameEn;
-          parsed[0].nameAr = initialTenants[0].nameAr;
-          parsed[0].descAr = initialTenants[0].descAr;
-          parsed[0].descEn = initialTenants[0].descEn;
-          parsed[0].copyrightAr = initialTenants[0].copyrightAr;
-          parsed[0].copyrightEn = initialTenants[0].copyrightEn;
-          parsed[0].phone = initialTenants[0].phone;
-          parsed[0].whatsappNumber = initialTenants[0].whatsappNumber;
-          parsed[0].addressAr = initialTenants[0].addressAr;
-          parsed[0].addressEn = initialTenants[0].addressEn;
-          parsed[0].hoursAr = initialTenants[0].hoursAr;
-          parsed[0].hoursEn = initialTenants[0].hoursEn;
-          if (!parsed[0].primaryColor || parsed[0].primaryColor === '#e11d48') {
-            parsed[0].primaryColor = initialTenants[0].primaryColor;
-            parsed[0].secondaryColor = initialTenants[0].secondaryColor;
-          }
-          parsed[0].instagramUrl = initialTenants[0].instagramUrl;
-          parsed[0].snapchatUrl = initialTenants[0].snapchatUrl;
-          parsed[0].tiktokUrl = initialTenants[0].tiktokUrl;
-          parsed[0].twitterUrl = initialTenants[0].twitterUrl;
-          parsed[0].mapsUrl = initialTenants[0].mapsUrl;
-          parsed[0].handle = initialTenants[0].handle;
-          return parsed;
-        }
-      } catch (e) {
-        console.error(e);
-      }
+  const [tenants, setTenants] = useState<Tenant[]>(initialTenants);
+  const [branches, setBranches] = useState<Branch[]>(initialBranches);
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [modifierGroups, setModifierGroups] = useState<ModifierGroup[]>(initialModifierGroups);
+  const [databaseStatus, setDatabaseStatus] = useState<'loading' | 'online' | 'syncing' | 'offline'>('loading');
+  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
+
+  const latestVersionRef = useRef(0);
+  const pendingWritesRef = useRef(0);
+  const writeQueuesRef = useRef<Partial<Record<CatalogResource, Promise<void>>>>({});
+  const tenantsRef = useRef(tenants);
+  const branchesRef = useRef(branches);
+  const categoriesRef = useRef(categories);
+  const productsRef = useRef(products);
+
+  const applyCatalogSnapshot = useCallback((snapshot: CatalogSnapshot) => {
+    if (!snapshot.changed) {
+      latestVersionRef.current = snapshot.version;
+      setDatabaseStatus('online');
+      setLastSyncedAt(new Date());
+      return;
     }
-    localStorage.setItem('menu_store_profile', JSON.stringify(initialTenants));
-    return initialTenants;
-  });
+
+    if (snapshot.tenants?.length) {
+      tenantsRef.current = snapshot.tenants;
+      setTenants(snapshot.tenants);
+    }
+    if (snapshot.branches) {
+      branchesRef.current = snapshot.branches;
+      setBranches(snapshot.branches);
+    }
+    if (snapshot.categories) {
+      categoriesRef.current = snapshot.categories;
+      setCategories(snapshot.categories);
+    }
+    if (snapshot.products) {
+      productsRef.current = snapshot.products;
+      setProducts(snapshot.products);
+    }
+    if (snapshot.modifierGroups) setModifierGroups(snapshot.modifierGroups);
+
+    latestVersionRef.current = snapshot.version;
+    setDatabaseStatus('online');
+    setLastSyncedAt(new Date());
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem('menu_store_profile', JSON.stringify(tenants));
-  }, [tenants]);
+    const controller = new AbortController();
+
+    const refreshCatalog = async () => {
+      if (pendingWritesRef.current > 0) return;
+      try {
+        const snapshot = await fetchCatalog(latestVersionRef.current, controller.signal);
+        applyCatalogSnapshot(snapshot);
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          console.error('MySQL catalog sync failed:', error);
+          setDatabaseStatus('offline');
+        }
+      }
+    };
+
+    void refreshCatalog();
+    const intervalId = window.setInterval(refreshCatalog, 2500);
+    const handleFocus = () => void refreshCatalog();
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      controller.abort();
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [applyCatalogSnapshot]);
+
+  const persistResource = useCallback(<T,>(resource: CatalogResource, records: T[]) => {
+    pendingWritesRef.current += 1;
+    setDatabaseStatus('syncing');
+
+    const previous = writeQueuesRef.current[resource] || Promise.resolve();
+    const queued = previous
+      .catch(() => undefined)
+      .then(async () => {
+        const result = await saveCatalogResource(resource, records);
+        latestVersionRef.current = result.version;
+        setLastSyncedAt(new Date());
+        setDatabaseStatus('online');
+      })
+      .catch(error => {
+        console.error(`Unable to save ${resource} to MySQL:`, error);
+        setDatabaseStatus('offline');
+      })
+      .finally(() => {
+        pendingWritesRef.current = Math.max(0, pendingWritesRef.current - 1);
+      });
+
+    writeQueuesRef.current[resource] = queued;
+  }, []);
+
+  const updateTenants: React.Dispatch<React.SetStateAction<Tenant[]>> = useCallback(action => {
+    const next = typeof action === 'function' ? action(tenantsRef.current) : action;
+    tenantsRef.current = next;
+    setTenants(next);
+    persistResource('tenants', next);
+  }, [persistResource]);
+
+  const updateBranches: React.Dispatch<React.SetStateAction<Branch[]>> = useCallback(action => {
+    const next = typeof action === 'function' ? action(branchesRef.current) : action;
+    branchesRef.current = next;
+    setBranches(next);
+    persistResource('branches', next);
+  }, [persistResource]);
+
+  const updateCategories: React.Dispatch<React.SetStateAction<Category[]>> = useCallback(action => {
+    const next = typeof action === 'function' ? action(categoriesRef.current) : action;
+    categoriesRef.current = next;
+    setCategories(next);
+    persistResource('categories', next);
+  }, [persistResource]);
+
+  const updateProducts: React.Dispatch<React.SetStateAction<Product[]>> = useCallback(action => {
+    const next = typeof action === 'function' ? action(productsRef.current) : action;
+    productsRef.current = next;
+    setProducts(next);
+    persistResource('products', next);
+  }, [persistResource]);
 
   const activeTenant = tenants[0] || initialTenants[0];
-
-  // Branches
-  const [branches, setBranches] = useState<Branch[]>(() => {
-    const saved = localStorage.getItem('menu_branches');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          parsed[0].nameAr = initialBranches[0].nameAr;
-          parsed[0].nameEn = initialBranches[0].nameEn;
-          parsed[0].addressAr = initialBranches[0].addressAr;
-          parsed[0].addressEn = initialBranches[0].addressEn;
-          parsed[0].phone = initialBranches[0].phone;
-          return parsed;
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    localStorage.setItem('menu_branches', JSON.stringify(initialBranches));
-    return initialBranches;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('menu_branches', JSON.stringify(branches));
-  }, [branches]);
-
-  // Categories
-  const [categories, setCategories] = useState<Category[]>(() => {
-    const saved = localStorage.getItem('menu_categories');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    localStorage.setItem('menu_categories', JSON.stringify(initialCategories));
-    return initialCategories;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('menu_categories', JSON.stringify(categories));
-  }, [categories]);
-
-  // Products
-  const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem('menu_products');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    localStorage.setItem('menu_products', JSON.stringify(initialProducts));
-    return initialProducts;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('menu_products', JSON.stringify(products));
-  }, [products]);
-
-  // Modifier Groups
-  const [modifierGroups] = useState<ModifierGroup[]>(() => {
-    const saved = localStorage.getItem('menu_modifier_groups');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    localStorage.setItem('menu_modifier_groups', JSON.stringify(initialModifierGroups));
-    return initialModifierGroups;
-  });
 
   // Client-side routing
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -193,7 +180,14 @@ export default function App() {
   }, []);
 
   // Theme & Language
-  const [lang, setLang] = useState<'en' | 'ar'>('ar');
+  const [lang, setLang] = useState<'en' | 'ar'>(() => {
+    const savedLanguage = localStorage.getItem('menu_language');
+    return savedLanguage === 'en' ? 'en' : 'ar';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('menu_language', lang);
+  }, [lang]);
   const [darkMode, setDarkMode] = useState<boolean>(false);
 
   useEffect(() => {
@@ -205,27 +199,66 @@ export default function App() {
   }, [darkMode]);
 
   // Admin authentication state
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
-    return sessionStorage.getItem('menu_admin_session') === 'true';
-  });
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [activeStaff, setActiveStaff] = useState<StaffUser | null>(null);
+  const [staffUsers, setStaffUsers] = useState<StaffUser[]>([]);
   const [adminPin, setAdminPin] = useState('');
   const [pinError, setPinError] = useState('');
 
-  const handleAdminLogin = (e: React.FormEvent) => {
+  const refreshUsers = useCallback(async () => {
+    const result = await fetchUsers();
+    setStaffUsers(result.users);
+  }, []);
+
+  const handleSaveUser = useCallback(async (user: StaffUser & { pin?: string }) => {
+    await saveUser(user);
+    await refreshUsers();
+  }, [refreshUsers]);
+
+  const handleDeleteUser = useCallback(async (id: string) => {
+    await deleteUser(id);
+    await refreshUsers();
+  }, [refreshUsers]);
+
+  useEffect(() => {
+    checkAdminSession()
+      .then(result => {
+        setIsAdminLoggedIn(result.authenticated);
+        setActiveStaff(result.user);
+        if (result.authenticated) void refreshUsers();
+      })
+      .catch(() => {
+        setIsAdminLoggedIn(false);
+        setActiveStaff(null);
+      });
+  }, [refreshUsers]);
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminPin === '0000' || adminPin === '1234') {
+    setPinError('');
+    try {
+      const result = await loginAdmin(adminPin);
       setIsAdminLoggedIn(true);
-      sessionStorage.setItem('menu_admin_session', 'true');
-      setPinError('');
+      setActiveStaff(result.user);
+      await refreshUsers();
       setAdminPin('');
-    } else {
-      setPinError(lang === 'ar' ? 'رمز المرور غير صحيح! (الرمز الافتراضي: 0000)' : 'Incorrect PIN! (Default: 0000)');
+    } catch (error) {
+      // The local Vite server cannot execute PHP; keep a development-only login fallback.
+      if (window.location.hostname === 'localhost' && adminPin === '0000') {
+        setIsAdminLoggedIn(true);
+        setActiveStaff({ id: 'local-admin', tenantId: 'areej', name: 'Areej Manager', email: 'admin@areej-sa.net', role: 'owner', isActive: true });
+        setAdminPin('');
+        return;
+      }
+      setPinError(lang === 'ar' ? 'رمز المرور غير صحيح أو تعذر الاتصال بالخادم.' : 'Incorrect PIN or server unavailable.');
     }
   };
 
   const handleLogout = () => {
     setIsAdminLoggedIn(false);
-    sessionStorage.removeItem('menu_admin_session');
+    setActiveStaff(null);
+    setStaffUsers([]);
+    void logoutAdmin().catch(error => console.error('Logout failed:', error));
     navigateTo('/menu');
   };
 
@@ -246,7 +279,7 @@ export default function App() {
     }
   }, [activeTenant, lang]);
 
-  // Place order handler (stores orders locally)
+  // Place orders directly in MySQL.
   const placeOrder = (
     orderMetadata: Omit<Order, 'id' | 'createdAt' | 'tenantId' | 'branchId' | 'status' | 'preparationTimeEstimate'>,
     items: Omit<OrderItem, 'id' | 'orderId'>[]
@@ -263,10 +296,10 @@ export default function App() {
       source: 'DigitalMenu'
     };
 
-    const savedOrders = localStorage.getItem('menu_orders');
-    const ordersList = savedOrders ? JSON.parse(savedOrders) : [];
-    ordersList.unshift(newOrder);
-    localStorage.setItem('menu_orders', JSON.stringify(ordersList.slice(0, 50)));
+    void createOrder(newOrder, items).catch(error => {
+      console.error('Unable to save order to MySQL:', error);
+      alert(lang === 'ar' ? 'تعذر إرسال الطلب الآن، حاول مرة أخرى.' : 'Unable to place the order. Please try again.');
+    });
   };
 
   const isCurrentViewAdmin = currentPath.startsWith('/admin') || currentPath.startsWith('/staff');
@@ -280,26 +313,28 @@ export default function App() {
         isAdminLoggedIn ? (
           <AdminDashboard 
             tenant={activeTenant}
-            setTenants={setTenants}
+            setTenants={updateTenants}
             branches={branches}
-            setBranches={setBranches}
+            setBranches={updateBranches}
             products={products}
             categories={categories}
             modifierGroups={modifierGroups}
-            setProducts={setProducts}
-            setCategories={setCategories}
+            setProducts={updateProducts}
+            setCategories={updateCategories}
             lang={lang}
+            setLang={setLang}
             currentPath={currentPath}
             navigateTo={navigateTo}
-            activeStaff={{
-              name: lang === 'ar' ? 'إدارة مطعم أريج' : 'Areej Manager',
-              role: 'manager',
-              email: 'admin@areej-sa.net',
-              phone: activeTenant.phone || ''
-            }}
+            activeStaff={activeStaff}
+            staffUsers={staffUsers}
+            onRefreshUsers={refreshUsers}
+            onSaveUser={handleSaveUser}
+            onDeleteUser={handleDeleteUser}
             onLogout={handleLogout}
             darkMode={darkMode}
             setDarkMode={setDarkMode}
+            databaseStatus={databaseStatus}
+            lastSyncedAt={lastSyncedAt}
           />
         ) : (
           /* Elegant Admin Access Gate */

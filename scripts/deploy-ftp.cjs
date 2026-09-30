@@ -17,10 +17,15 @@ async function run() {
   const ftp = require('basic-ftp');
 
   // 2. Load and validate FTP configuration
-  const host = 'ftp.areej-sa.net';
-  const user = 'u177160961.areej';
+  const host = process.env.FTP_HOST || 'ftp.areej-sa.net';
+  const user = process.env.FTP_USER;
   let password = process.env.FTP_PASSWORD;
-  const remoteDir = './';
+  const remoteDir = process.env.FTP_REMOTE_DIR || './';
+
+  if (!user) {
+    console.error('FTP_USER was not found in .env.');
+    process.exit(1);
+  }
 
   if (!password) {
     const readline = require('readline');
@@ -74,7 +79,7 @@ async function run() {
     console.log('Uploading compiled build files (contents of dist/)...');
     await client.uploadFromDir(DIST_DIR);
 
-    console.log('\n🎉 SUCCESS: Deployment completed successfully to meatport.net!');
+    console.log('\nDeployment completed successfully to areej-sa.net.');
   } catch (err) {
     console.error('\n❌ FTP Deployment Error:', err.message);
   } finally {

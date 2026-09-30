@@ -1,0 +1,5 @@
+Options -Indexes
+
+<FilesMatch "^(config(\.example)?\.php|bootstrap\.php|catalog\.seed\.json)$">
+  Require all denied
+</FilesMatch>

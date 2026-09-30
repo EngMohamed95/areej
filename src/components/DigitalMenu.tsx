@@ -187,6 +187,15 @@ export default function DigitalMenu({
 
   // Dialog selection
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  // Reflect dashboard edits inside an already-open product dialog as well.
+  useEffect(() => {
+    setSelectedProduct(current => {
+      if (!current) return null;
+      const updatedProduct = products.find(product => product.id === current.id);
+      return updatedProduct?.isVisible ? updatedProduct : null;
+    });
+  }, [products]);
   
   // Custom states inside dialog
   const [selectedSizeId, setSelectedSizeId] = useState<string>('');
@@ -261,7 +270,9 @@ export default function DigitalMenu({
   }, [products, tenant]);
 
   const tenantProducts = useMemo(() => {
-    const activeProducts = products.filter(p => p.tenantId === tenant.id && p.isVisible);
+    const activeProducts = products
+      .filter(p => p.tenantId === tenant.id && p.isVisible)
+      .sort((a, b) => a.displayOrder - b.displayOrder);
     
     if (!searchQuery.trim()) {
       return activeProducts.filter(p => selectedCategory === 'all' || p.categoryId === selectedCategory);
