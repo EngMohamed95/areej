@@ -309,6 +309,22 @@ export default function DigitalMenu({
       .filter(p => selectedCategory === 'all' || p.categoryId === selectedCategory);
   }, [products, tenant, selectedCategory, searchQuery]);
 
+  const getProductFallbackImage = (product: Product) => {
+    return tenantCategories.find(category => category.id === product.categoryId)?.imageUrl
+      || tenant.logoUrl
+      || '/logo-areej.png';
+  };
+
+  const handleProductImageError = (event: React.SyntheticEvent<HTMLImageElement>, product: Product) => {
+    const image = event.currentTarget;
+    if (image.dataset.fallbackApplied === 'true') {
+      image.style.display = 'none';
+      return;
+    }
+    image.dataset.fallbackApplied = 'true';
+    image.src = getProductFallbackImage(product);
+  };
+
   const selectedCategoryInfo = useMemo(() => {
     if (selectedCategory === 'all') return null;
     return tenantCategories.find(category => category.id === selectedCategory) || null;
@@ -1157,6 +1173,17 @@ export default function DigitalMenu({
                         : 'bg-white border-gray-100 hover:border-rose-100'
                     }`}
                   >
+                    <div className="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800">
+                      <img
+                        src={p.imageUrl || getProductFallbackImage(p)}
+                        alt={lang === 'ar' ? p.nameAr : p.nameEn}
+                        loading="lazy"
+                        decoding="async"
+                        onError={(event) => handleProductImageError(event, p)}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+
                     {/* Middle: Text details */}
                     <div className="flex-1 min-w-0 space-y-1 text-right">
                       <div className="flex items-center gap-1.5 flex-wrap">
@@ -1247,6 +1274,18 @@ export default function DigitalMenu({
                             : 'bg-white border-gray-100 hover:border-rose-200 hover:shadow-rose-100/70'
                         }`}
                       >
+                        <div className="relative h-44 overflow-hidden bg-gray-100 dark:bg-gray-800">
+                          <img
+                            src={p.imageUrl || getProductFallbackImage(p)}
+                            alt={lang === 'ar' ? p.nameAr : p.nameEn}
+                            loading="lazy"
+                            decoding="async"
+                            onError={(event) => handleProductImageError(event, p)}
+                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+                        </div>
+
                         {/* Card Header (without image) */}
                         <div className="p-5 pb-0 flex items-center justify-between">
                           {p.discountRate > 0 ? (
@@ -1330,6 +1369,17 @@ export default function DigitalMenu({
                             : 'bg-white border-gray-100 hover:border-rose-100'
                         }`}
                       >
+                        <div className="relative w-28 h-24 lg:w-36 lg:h-28 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
+                          <img
+                            src={p.imageUrl || getProductFallbackImage(p)}
+                            alt={lang === 'ar' ? p.nameAr : p.nameEn}
+                            loading="lazy"
+                            decoding="async"
+                            onError={(event) => handleProductImageError(event, p)}
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        </div>
+
                         {/* Middle: Text details */}
                         <div className="flex-1 min-w-0 space-y-1 text-right">
                           <div className="flex items-center gap-1.5 flex-wrap">
