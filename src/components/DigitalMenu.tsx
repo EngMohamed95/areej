@@ -6,6 +6,9 @@ import {
 } from 'lucide-react';
 import { Product, Category, ModifierGroup, Tenant, Branch } from '../types';
 
+// Menu is display-only; set to true to re-enable the cart and checkout.
+const ORDERING_ENABLED = false;
+
 const SaudiRiyalIcon = ({ className = "h-[0.8em] w-auto inline-block align-middle ml-1" }: { className?: string }) => {
   return (
     <svg className={className} viewBox="0 0 1124.14 1256.39" fill="currentColor" style={{ height: '0.9em', verticalAlign: 'middle' }}>
@@ -604,7 +607,8 @@ export default function DigitalMenu({
             </button>
 
             {/* Shopping Cart Drawer Trigger */}
-            <button 
+            {ORDERING_ENABLED && (
+            <button
               onClick={() => setShowCartDrawer(true)}
               className="relative p-2.5 rounded-lg bg-[var(--tenant-primary)] hover:opacity-95 text-white transition shadow-sm flex items-center justify-center"
             >
@@ -615,6 +619,7 @@ export default function DigitalMenu({
                 </span>
               )}
             </button>
+            )}
 
             {/* Hamburger Mobile Menu Toggle */}
             <button 
@@ -1221,9 +1226,11 @@ export default function DigitalMenu({
                           </span>
                         </div>
                         
-                        <span className="product-add-button p-2 rounded-xl transition shadow-xs">
-                          <Plus className="w-3.5 h-3.5" />
-                        </span>
+                        {ORDERING_ENABLED && (
+                          <span className="product-add-button p-2 rounded-xl transition shadow-xs">
+                            <Plus className="w-3.5 h-3.5" />
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1306,9 +1313,11 @@ export default function DigitalMenu({
                                   {p.calories} Cal
                                 </span>
                               )}
-                              <span className="product-add-button flex h-11 w-11 items-center justify-center rounded-2xl shadow-sm transition group-hover:scale-110">
-                                <Plus className="w-5 h-5" />
-                              </span>
+                              {ORDERING_ENABLED && (
+                                <span className="product-add-button flex h-11 w-11 items-center justify-center rounded-2xl shadow-sm transition group-hover:scale-110">
+                                  <Plus className="w-5 h-5" />
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1389,9 +1398,11 @@ export default function DigitalMenu({
                               </span>
                             </div>
                             
-                            <span className="product-add-button p-2 rounded-xl transition shadow-xs">
-                              <Plus className="w-3.5 h-3.5" />
-                            </span>
+                            {ORDERING_ENABLED && (
+                              <span className="product-add-button p-2 rounded-xl transition shadow-xs">
+                                <Plus className="w-3.5 h-3.5" />
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1796,6 +1807,7 @@ export default function DigitalMenu({
               darkMode ? 'border-gray-900 bg-gray-950' : 'border-gray-100 bg-gray-50/50'
             }`}>
               
+              {ORDERING_ENABLED ? (<>
               {/* Quantity Changer */}
               <div className="flex items-center gap-3 bg-white border border-gray-200/50 rounded-full px-3 py-1.5 shadow-sm dark:bg-gray-900 dark:border-gray-800">
                 <button 
@@ -1823,6 +1835,14 @@ export default function DigitalMenu({
                 <span>•</span>
                 <span>{calculatedDialogPrice.toFixed(2)} <SaudiRiyalIcon /></span>
               </button>
+              </>) : (
+                <>
+                  <span className="text-xs font-bold text-gray-400">{lang === 'ar' ? 'السعر' : 'Price'}</span>
+                  <span className="text-lg font-black text-rose-600">
+                    {calculatedDialogPrice.toFixed(2)} <SaudiRiyalIcon />
+                  </span>
+                </>
+              )}
             </div>
 
           </div>
@@ -1830,7 +1850,7 @@ export default function DigitalMenu({
       )}
 
       {/* Cart Drawer */}
-      {showCartDrawer && (
+      {ORDERING_ENABLED && showCartDrawer && (
         <div className="fixed inset-0 z-50 flex items-end md:items-stretch justify-end bg-black/60 backdrop-blur-xs font-sans p-0">
           <div className={`w-full max-w-md h-[90vh] md:h-full rounded-t-[32px] md:rounded-none shadow-2xl flex flex-col justify-between ${
             darkMode ? 'bg-gray-950 text-gray-100 md:border-l border-gray-900' : 'bg-white text-gray-800'
@@ -2176,7 +2196,7 @@ export default function DigitalMenu({
       )}
 
       {/* Floating Mobile Cart FAB */}
-      {cart.length > 0 && !showCartDrawer && (
+      {ORDERING_ENABLED && cart.length > 0 && !showCartDrawer && (
         <div className="fixed bottom-6 left-4 right-4 z-40 md:hidden animate-bounce-short shadow-xl">
           <button 
             onClick={() => setShowCartDrawer(true)}
